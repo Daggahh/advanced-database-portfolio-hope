@@ -1,0 +1,172 @@
+---
+title: FitsCheck - Entity Relationship Diagram
+config:
+  layout: elk
+  theme: neutral
+---
+erDiagram
+    app_user {
+        bigint id PK
+        varchar(30) username UK "unique ignoring case"
+        varchar(255) email UK "unique ignoring case"
+        text password_hash
+        varchar(100) full_name
+        varchar(300) bio
+        text avatar_url
+        integer style_points "never negative"
+        boolean is_active "deactivate, never delete"
+        boolean is_admin
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    user_device {
+        bigint id PK
+        bigint user_id FK
+        text push_token UK
+        device_platform platform "ios, android, web"
+        timestamptz last_seen_at
+        timestamptz created_at
+    }
+    follow {
+        bigint follower_id PK, FK
+        bigint followed_id PK, FK "not the follower"
+        timestamptz created_at
+    }
+    block {
+        bigint blocker_id PK, FK
+        bigint blocked_id PK, FK "not the blocker"
+        timestamptz created_at
+    }
+    post {
+        bigint id PK
+        bigint author_id FK
+        varchar(2200) caption
+        integer likes_count "derived counter"
+        integer comments_count "derived counter"
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    post_image {
+        bigint id PK, UK "UK (id, post_id) for vote FK"
+        bigint post_id FK, UK
+        smallint position "1 to 10, unique per post"
+        text image_url
+        timestamptz created_at
+    }
+    brand {
+        bigint id PK
+        varchar(100) name UK
+        text website
+    }
+    shop_item {
+        bigint id PK
+        bigint post_image_id FK
+        bigint brand_id FK "optional"
+        varchar(150) item_name
+        numeric price "(12,2), zero or more"
+        char(3) currency "ISO code, e.g. NGN"
+        text affiliate_url
+        varchar(50) promo_code
+    }
+    hashtag {
+        bigint id PK
+        varchar(100) name UK "lowercase"
+        integer posts_count "derived counter"
+        timestamptz created_at
+    }
+    post_hashtag {
+        bigint post_id PK, FK
+        bigint hashtag_id PK, FK
+    }
+    post_like {
+        bigint user_id PK, FK
+        bigint post_id PK, FK
+        timestamptz created_at
+    }
+    vote {
+        bigint id PK
+        bigint user_id FK, UK "UK (user_id, post_id)"
+        bigint post_id FK, UK "derivable, kept for UK"
+        bigint post_image_id FK "the look picked"
+        timestamptz created_at
+    }
+    comment {
+        bigint id PK, UK "UK (id, post_id) for reply FK"
+        bigint post_id FK, UK
+        bigint author_id FK
+        bigint parent_id FK "null when top level"
+        varchar(2000) body "1 to 2000 chars"
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    challenge {
+        bigint id PK
+        varchar(120) slug UK
+        varchar(200) title
+        text description
+        timestamptz starts_at "before ends_at"
+        timestamptz ends_at
+        integer max_entries "greater than 0"
+        integer reward_points
+        integer entries_count "derived counter"
+        bigint winner_entry_id FK "null until closed"
+        timestamptz created_at
+    }
+    challenge_entry {
+        bigint id PK, UK "UK (id, challenge_id) for winner FK"
+        bigint challenge_id FK, UK "UK (challenge_id, user_id)"
+        bigint user_id FK, UK
+        bigint post_id FK "entrant's own post"
+        timestamptz created_at
+    }
+    report {
+        bigint id PK
+        bigint reporter_id FK
+        bigint target_user_id FK "exactly one target set"
+        bigint target_post_id FK
+        bigint target_comment_id FK
+        varchar(50) reason
+        varchar(1000) details
+        report_status status "open, reviewing, actioned, dismissed"
+        bigint reviewed_by FK "set with reviewed_at"
+        timestamptz reviewed_at
+        timestamptz created_at
+    }
+    notification {
+        bigint id PK
+        bigint recipient_id FK
+        varchar(30) type
+        varchar(150) title
+        varchar(500) body
+        boolean is_read
+        timestamptz created_at
+    }
+
+    app_user ||--o{ user_device : "registers"
+    app_user ||--o{ follow : "follows"
+    app_user ||--o{ follow : "is followed in"
+    app_user ||--o{ block : "blocks"
+    app_user ||--o{ block : "is blocked in"
+    app_user ||--o{ post : "authors"
+    post ||--|{ post_image : "contains 1 to 10"
+    post_image ||--o{ shop_item : "tags"
+    brand |o--o{ shop_item : "makes"
+    post ||--o{ post_hashtag : "is tagged in"
+    hashtag ||--o{ post_hashtag : "labels"
+    app_user ||--o{ post_like : "gives"
+    post ||--o{ post_like : "receives"
+    app_user ||--o{ vote : "casts"
+    post_image ||--o{ vote : "is chosen in"
+    app_user ||--o{ comment : "writes"
+    post ||--o{ comment : "has"
+    comment |o--o{ comment : "is replied to by"
+    challenge ||--o{ challenge_entry : "receives"
+    app_user ||--o{ challenge_entry : "submits"
+    post ||--o{ challenge_entry : "is entered as"
+    challenge |o--o| challenge_entry : "is won by"
+    app_user ||--o{ report : "files"
+    app_user |o--o{ report : "reviews"
+    app_user |o--o{ report : "is reported in"
+    post |o--o{ report : "is reported in"
+    comment |o--o{ report : "is reported in"
+    app_user ||--o{ notification : "receives"
