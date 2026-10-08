@@ -1,0 +1,56 @@
+name: fitscheck-db
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: fitscheck_postgres
+    env_file: .env
+    # pg_stat_statements and io timing feed the P2 performance evidence
+    command:
+      - postgres
+      - -c
+      - shared_preload_libraries=pg_stat_statements
+      - -c
+      - track_io_timing=on
+    ports:
+      - "5433:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  mongo:
+    image: mongo:7
+    container_name: fitscheck_mongo
+    profiles: ["nosql"]
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  redis:
+    image: redis:7
+    container_name: fitscheck_redis
+    profiles: ["nosql"]
+    ports:
+      - "6380:6379"
+
+  neo4j:
+    image: neo4j:5-community
+    container_name: fitscheck_neo4j
+    profiles: ["nosql"]
+    environment:
+      NEO4J_AUTH: neo4j/fitscheck_local
+    ports:
+      - "7475:7474"
+      - "7688:7687"
+    volumes:
+      - neo4j_data:/data
+
+volumes:
+  pg_data:
+  mongo_data:
+  neo4j_data:
