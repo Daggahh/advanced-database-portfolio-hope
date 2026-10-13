@@ -55,6 +55,25 @@ with a declarative composite foreign key. Stored counters are deliberate denorma
 and controlled.
 
 ## 3. How to run
+
+From the repository root, with the stack running (`docker compose up -d postgres`) and `.env` loaded
+(`set -a; . ./.env; set +a`):
+
+```bash
+psql "$PG_URL" -v ON_ERROR_STOP=1 -f portfolio-1-database-design/sql/01_schema.sql
+psql "$PG_URL" -v ON_ERROR_STOP=1 -f portfolio-1-database-design/sql/02_constraints.sql
+psql "$PG_URL" -v ON_ERROR_STOP=1 -f portfolio-1-database-design/sql/03_triggers.sql
+psql "$PG_URL" -v ON_ERROR_STOP=1 -f portfolio-1-database-design/sql/04_views.sql
+```
+
+| Script | Contents |
+|---|---|
+| [01_schema.sql](sql/01_schema.sql) | Schema `fitscheck`, enum types, 17 tables with primary keys and defaults |
+| [02_constraints.sql](sql/02_constraints.sql) | Alternate keys, checks and foreign keys, all named |
+| [03_triggers.sql](sql/03_triggers.sql) | Cross-table rules (BR-03, BR-12) and `updated_at` stamping |
+| [04_views.sql](sql/04_views.sql) | `v_post_card` (feed card) and `v_counter_drift` (counter reconciliation, BR-20) |
+
+To start again from empty: `psql "$PG_URL" -c "DROP SCHEMA fitscheck CASCADE"`.
 ## 4. How it was tested
 ## 5. Results and evidence
 ## 6. Analysis

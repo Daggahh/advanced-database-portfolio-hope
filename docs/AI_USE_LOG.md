@@ -22,3 +22,11 @@ A dated record of AI-assisted work on the portfolio. Summarised in `AI_USE_DECLA
   diagrams/fitscheck-erd.mmd and .png, portfolio-1-database-design/README.md
 - My verification: I reviewed the FD analysis, in particular the 3NF versus BCNF reasoning for vote
   and challenge_entry, and reworded it.
+
+## 2026-10-13 - Portfolio 1 / DDL
+- Tool: Claude Code
+- Used for: writing the four DDL scripts (01_schema, 02_constraints, 03_triggers, 04_views) from my
+  ERD and business rules.
+- Files touched: portfolio-1-database-design/sql/01_schema.sql to 04_views.sql,
+  portfolio-1-database-design/README.md (How to run)
+- My verification: I reviewed the constraints and ran the scripts against a fresh database.
