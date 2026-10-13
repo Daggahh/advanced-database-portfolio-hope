@@ -44,7 +44,7 @@ written fresh for this course; no application code is reused. Every row is synth
 
 | # | Activity | Marks | Folder | Status |
 |---|---|---|---|---|
-| 1 | Database Design and Modelling | 7 | [portfolio-1-database-design](portfolio-1-database-design/) | Not started |
+| 1 | Database Design and Modelling | 7 | [portfolio-1-database-design](portfolio-1-database-design/) | In progress |
 | 2 | Query Processing and Optimisation | 7 | [portfolio-2-query-optimisation](portfolio-2-query-optimisation/) | Not started |
 | 3 | Transactions and Concurrency | 7 | [portfolio-3-transactions-concurrency](portfolio-3-transactions-concurrency/) | Not started |
 | 4 | NoSQL and Advanced Data Models | 7 | [portfolio-4-nosql](portfolio-4-nosql/) | Not started |
