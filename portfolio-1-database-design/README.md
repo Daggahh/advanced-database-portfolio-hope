@@ -1,6 +1,6 @@
 # Portfolio 1: Database Design and Modelling
 
-**Case study:** FitsCheck. **Marks:** 7. **Status:** Not started.
+**Case study:** FitsCheck. **Marks:** 7. **Status:** In progress.
 
 **Brief requires:** chosen case study description, ER diagram, relational schema, keys, constraints, and normalisation explanation.
 
@@ -45,6 +45,15 @@ Design points visible in the diagram:
 - **Delete behaviour** is deliberate: deleting a post cascades to its images, likes, votes and
   comments, but user references restrict, because accounts are deactivated rather than deleted
   (BR-05).
+### 2.3 Normalisation
+[normalisation.md](normalisation.md) derives the schema from one flat "post a fit" record through
+1NF, 2NF and 3NF, then tests every relation against BCNF. Three relations deliberately keep a
+redundant column so a business rule can be a `UNIQUE` constraint: `vote` and `challenge_entry` are in
+3NF but not BCNF, and `comment` keeps `post_id` for replies. In each case a composite foreign key
+stops the redundant value from ever being wrong. The analysis also replaced a planned trigger (BR-15)
+with a declarative composite foreign key. Stored counters are deliberate denormalisation, justified
+and controlled.
+
 ## 3. How to run
 ## 4. How it was tested
 ## 5. Results and evidence

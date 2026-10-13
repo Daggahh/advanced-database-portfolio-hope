@@ -13,3 +13,12 @@ A dated record of AI-assisted work on the portfolio. Summarised in `AI_USE_DECLA
 - My verification: I rejected the first auto-rendered layout as unreadable and asked for a cleaner
   tool. I then checked the final diagram against business-rules.md: all 17 tables, every
   relationship and its cardinality, and the composite keys on vote, comment and challenge.
+
+## 2026-10-13 - Portfolio 1 / normalisation
+- Tool: Claude Code
+- Used for: drafting normalisation.md from my business rules and ERD, including the functional
+  dependency and candidate key analysis for every relation.
+- Files touched: portfolio-1-database-design/normalisation.md, business-rules.md (BR-15),
+  diagrams/fitscheck-erd.mmd and .png, portfolio-1-database-design/README.md
+- My verification: I reviewed the FD analysis, in particular the 3NF versus BCNF reasoning for vote
+  and challenge_entry, and reworded it.

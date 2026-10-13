@@ -42,7 +42,7 @@ and the level is a design decision:
 | ID | Rule | Level | Enforcement |
 |---|---|---|---|
 | BR-14 | A challenge has a unique slug, a start before its end, and a positive entry limit. | D | `UNIQUE (slug)`, `CHECK (starts_at < ends_at)`, `CHECK (max_entries > 0)` |
-| BR-15 | A user enters a challenge at most once, using one of their own posts. | D + T | `UNIQUE (challenge_id, user_id)`; trigger checks the post's author is the entrant |
+| BR-15 | A user enters a challenge at most once, using one of their own posts. | D | `UNIQUE (challenge_id, user_id)`; composite FK `(post_id, user_id) -> post (id, author_id)` (see normalisation.md, 7.2) |
 | BR-16 | Entries are accepted only while the challenge is open, and never beyond its entry limit. | X | Entry transaction (Portfolio 3, scenario T6) |
 | BR-17 | A challenge's winner must be one of that challenge's own entries, and is set only once the challenge has ended. Winning awards style points, and style points are never negative. | D + X | Composite FK `(winner_entry_id, id) -> challenge_entry (id, challenge_id)`; `CHECK (style_points >= 0)`; close transaction (T3) |
 

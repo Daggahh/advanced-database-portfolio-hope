@@ -38,8 +38,8 @@ erDiagram
         timestamptz created_at
     }
     post {
-        bigint id PK
-        bigint author_id FK
+        bigint id PK, UK "UK (id, author_id) for entry FK"
+        bigint author_id FK, UK
         varchar(2200) caption
         integer likes_count "derived counter"
         integer comments_count "derived counter"
@@ -116,7 +116,7 @@ erDiagram
         bigint id PK, UK "UK (id, challenge_id) for winner FK"
         bigint challenge_id FK, UK "UK (challenge_id, user_id)"
         bigint user_id FK, UK
-        bigint post_id FK "entrant's own post"
+        bigint post_id FK "FK (post_id, user_id) to own post"
         timestamptz created_at
     }
     report {
