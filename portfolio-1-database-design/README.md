@@ -75,6 +75,36 @@ psql "$PG_URL" -v ON_ERROR_STOP=1 -f portfolio-1-database-design/sql/04_views.sq
 
 To start again from empty: `psql "$PG_URL" -c "DROP SCHEMA fitscheck CASCADE"`.
 ## 4. How it was tested
+
+[05_constraint_tests.sql](sql/05_constraint_tests.sql) attacks every declarative and trigger rule in
+[business-rules.md](business-rules.md) with data that breaks it:
+
+1. It loads a small valid fixture (five users, posts, images, likes, votes, comments, challenges and
+   entries). The fixture loading at all proves valid data is accepted.
+2. Each test runs one rule-breaking statement inside a subtransaction. A helper catches the error and
+   records **which constraint actually fired** (or the SQLSTATE for errors that carry no constraint
+   name, such as NOT NULL). A test passes only if the expected constraint is the one that rejected it,
+   not merely if some error occurred.
+3. Behaviour that is not a rejection is checked with a true/false query: blocking removes an existing
+   follow, deleting a brand nulls its items, deleting a post cascades to its children, editing a post
+   stamps `updated_at`, and `v_counter_drift` catches a tampered counter.
+4. The whole run is one transaction that is rolled back, so it can be repeated on any database,
+   including a seeded one, and leaves nothing behind.
+
+```bash
+psql "$PG_URL" -X -q -v ON_ERROR_STOP=1 -f portfolio-1-database-design/sql/05_constraint_tests.sql
+```
 ## 5. Results and evidence
+
+| Evidence | What it shows |
+|---|---|
+| [p1_constraint_tests_all_rules_enforced.txt](evidence/p1_constraint_tests_all_rules_enforced.txt) | **50 of 50 tests pass**: every rule-breaking insert, update or delete was rejected by the intended named constraint or trigger, with its SQLSTATE. 3 further rules are listed as enforced by transactions in Portfolio 3. |
+
+SQLSTATE codes seen in the evidence: `23505` unique violation, `23503` foreign key violation, `23514`
+check violation (also raised by the triggers), `23502` NOT NULL violation and `22P02` invalid enum value.
+
+Rules enforced by transactions rather than the schema, and therefore tested in Portfolio 3:
+BR-07 (at least one image per post), BR-16 (entries only while open and within the limit) and BR-17
+(winner set only after the challenge ends).
 ## 6. Analysis
 ## 7. Limitations and next steps

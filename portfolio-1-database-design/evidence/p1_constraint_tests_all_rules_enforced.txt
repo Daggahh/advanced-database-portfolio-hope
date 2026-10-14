@@ -1,0 +1,63 @@
+ n  |  rule   |                               test                                |             expected              |                    got                    | outcome 
+----+---------+-------------------------------------------------------------------+-----------------------------------+-------------------------------------------+---------
+  1 | fixture | valid fixture data is accepted                                    | true                              | true                                      | PASS
+  2 | BR-01   | username differing only in case                                   | uq_app_user_username_ci           | uq_app_user_username_ci (23505)           | PASS
+  3 | BR-01   | email differing only in case                                      | uq_app_user_email_ci              | uq_app_user_email_ci (23505)              | PASS
+  4 | BR-01   | username with a space                                             | ck_app_user_username_format       | ck_app_user_username_format (23514)       | PASS
+  5 | BR-01   | email without @                                                   | ck_app_user_email_format          | ck_app_user_email_format (23514)          | PASS
+  6 | BR-02   | user follows themselves                                           | ck_follow_not_self                | ck_follow_not_self (23514)                | PASS
+  7 | BR-02   | same follow twice                                                 | pk_follow                         | pk_follow (23505)                         | PASS
+  8 | BR-03   | blocking removes the blocked user's existing follow               | true                              | true                                      | PASS
+  9 | BR-03   | blocked user follows the blocker                                  | tg_follow_not_blocked             | tg_follow_not_blocked (23514)             | PASS
+ 10 | BR-03   | user blocks themselves                                            | ck_block_not_self                 | ck_block_not_self (23514)                 | PASS
+ 11 | BR-04   | push token reused by another device                               | uq_user_device_push_token         | uq_user_device_push_token (23505)         | PASS
+ 12 | BR-04   | platform outside the enum                                         | 22P02                             | 22P02                                     | PASS
+ 13 | BR-06   | post without an author                                            | 23502                             | 23502                                     | PASS
+ 14 | BR-07   | post must have at least one image                                 | posting transaction, P3 T1/T2     | -                                         | P3
+ 15 | BR-07   | image in position 11                                              | ck_post_image_position_range      | ck_post_image_position_range (23514)      | PASS
+ 16 | BR-07   | two images in the same position                                   | uq_post_image_post_position       | uq_post_image_post_position (23505)       | PASS
+ 17 | BR-08   | negative price                                                    | ck_shop_item_price_nonneg         | ck_shop_item_price_nonneg (23514)         | PASS
+ 18 | BR-08   | lowercase currency code                                           | ck_shop_item_currency_iso         | ck_shop_item_currency_iso (23514)         | PASS
+ 19 | BR-09   | hashtag with capitals                                             | ck_hashtag_name_format            | ck_hashtag_name_format (23514)            | PASS
+ 20 | BR-09   | duplicate hashtag                                                 | uq_hashtag_name                   | uq_hashtag_name (23505)                   | PASS
+ 21 | BR-09   | same hashtag on a post twice                                      | pk_post_hashtag                   | pk_post_hashtag (23505)                   | PASS
+ 22 | BR-10   | same user likes a post twice                                      | pk_post_like                      | pk_post_like (23505)                      | PASS
+ 23 | BR-11   | second vote on the same post                                      | uq_vote_user_post                 | uq_vote_user_post (23505)                 | PASS
+ 24 | BR-11   | vote picks an image from a different post                         | fk_vote_post_image                | fk_vote_post_image (23503)                | PASS
+ 25 | BR-12   | author votes on their own post                                    | tg_vote_not_own_post              | tg_vote_not_own_post (23514)              | PASS
+ 26 | BR-13   | empty comment                                                     | ck_comment_body_length            | ck_comment_body_length (23514)            | PASS
+ 27 | BR-13   | reply on a different post from its parent                         | fk_comment_parent                 | fk_comment_parent (23503)                 | PASS
+ 28 | BR-14   | duplicate challenge slug                                          | uq_challenge_slug                 | uq_challenge_slug (23505)                 | PASS
+ 29 | BR-14   | challenge ends before it starts                                   | ck_challenge_dates                | ck_challenge_dates (23514)                | PASS
+ 30 | BR-14   | entry limit of zero                                               | ck_challenge_max_entries_positive | ck_challenge_max_entries_positive (23514) | PASS
+ 31 | BR-15   | user enters the same challenge twice                              | uq_entry_challenge_user           | uq_entry_challenge_user (23505)           | PASS
+ 32 | BR-15   | user enters with someone else's post                              | fk_entry_own_post                 | fk_entry_own_post (23503)                 | PASS
+ 33 | BR-16   | entries only while open and within the limit                      | entry transaction, P3 T6          | -                                         | P3
+ 34 | BR-17   | winner is an entry of another challenge                           | fk_challenge_winner               | fk_challenge_winner (23503)               | PASS
+ 35 | BR-17   | winner from the same challenge is accepted                        | true                              | true                                      | PASS
+ 36 | BR-17   | negative style points                                             | ck_app_user_style_points_nonneg   | ck_app_user_style_points_nonneg (23514)   | PASS
+ 37 | BR-17   | winner set only after the challenge ends                          | close transaction, P3 T3          | -                                         | P3
+ 38 | BR-18   | report with two targets                                           | ck_report_one_target              | ck_report_one_target (23514)              | PASS
+ 39 | BR-18   | report with no target                                             | ck_report_one_target              | ck_report_one_target (23514)              | PASS
+ 40 | BR-18   | reviewer recorded without a review time                           | ck_report_review_pair             | ck_report_review_pair (23514)             | PASS
+ 41 | BR-18   | report closed without being reviewed                              | ck_report_reviewed_when_closed    | ck_report_reviewed_when_closed (23514)    | PASS
+ 42 | BR-18   | status outside the enum                                           | 22P02                             | 22P02                                     | PASS
+ 43 | BR-19   | notification without a recipient                                  | 23502                             | 23502                                     | PASS
+ 44 | BR-19   | notification starts unread                                        | true                              | true                                      | PASS
+ 45 | BR-20   | reconciled counters show no drift                                 | true                              | true                                      | PASS
+ 46 | BR-20   | a tampered counter is caught by v_counter_drift                   | true                              | true                                      | PASS
+ 47 | BR-20   | negative like counter                                             | ck_post_likes_count_nonneg        | ck_post_likes_count_nonneg (23514)        | PASS
+ 48 | trigger | editing a post stamps updated_at server side                      | true                              | true                                      | PASS
+ 49 | BR-08   | deleting a brand keeps its items with no brand (SET NULL)         | true                              | true                                      | PASS
+ 50 | BR-08   | the shop item survived the brand delete                           | true                              | true                                      | PASS
+ 51 | delete  | deleting a post cascades to its images, likes, votes and comments | true                              | true                                      | PASS
+ 52 | BR-05   | deleting a user who has a post                                    | fk_post_author                    | fk_post_author (23503)                    | PASS
+ 53 | BR-05   | deleting a post that is a challenge entry                         | fk_entry_own_post                 | fk_entry_own_post (23503)                 | PASS
+(53 rows)
+
+ outcome | tests 
+---------+-------
+ P3      |     3
+ PASS    |    50
+(2 rows)
+

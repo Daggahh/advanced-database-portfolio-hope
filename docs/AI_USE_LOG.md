@@ -30,3 +30,13 @@ A dated record of AI-assisted work on the portfolio. Summarised in `AI_USE_DECLA
 - Files touched: portfolio-1-database-design/sql/01_schema.sql to 04_views.sql,
   portfolio-1-database-design/README.md (How to run)
 - My verification: I reviewed the constraints and ran the scripts against a fresh database.
+
+## 2026-10-14 - Portfolio 1 / constraint tests
+- Tool: Claude Code
+- Used for: writing 05_constraint_tests.sql, which attacks every schema rule and records which
+  constraint rejected it.
+- Files touched: portfolio-1-database-design/sql/05_constraint_tests.sql,
+  portfolio-1-database-design/evidence/p1_constraint_tests_all_rules_enforced.txt,
+  portfolio-1-database-design/README.md (How it was tested, Results and evidence)
+- My verification: I ran it, checked all 50 tests pass for the intended constraint, and reviewed the
+  evidence file.
