@@ -40,3 +40,11 @@ A dated record of AI-assisted work on the portfolio. Summarised in `AI_USE_DECLA
   portfolio-1-database-design/README.md (How it was tested, Results and evidence)
 - My verification: I ran it, checked all 50 tests pass for the intended constraint, and reviewed the
   evidence file.
+
+## 2026-10-14 - Portfolio 1 / data dictionary and README completion
+- Tool: Claude Code
+- Used for: writing the COMMENT ON descriptions and the catalog query that generates the data
+  dictionary, and drafting the Objective, Analysis and Limitations sections of the Portfolio 1 README.
+- Files touched: portfolio-1-database-design/sql/06_comments.sql, sql/07_data_dictionary.sql,
+  data-dictionary.md, portfolio-1-database-design/README.md, README.md
+- My verification: I reviewed the generated dictionary and reworded the analysis.

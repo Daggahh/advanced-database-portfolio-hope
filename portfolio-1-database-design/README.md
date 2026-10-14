@@ -1,10 +1,16 @@
 # Portfolio 1: Database Design and Modelling
 
-**Case study:** FitsCheck. **Marks:** 7. **Status:** In progress.
+**Case study:** FitsCheck. **Marks:** 7. **Status:** Complete.
 
 **Brief requires:** chosen case study description, ER diagram, relational schema, keys, constraints, and normalisation explanation.
 
 ## 1. Objective
+
+Design and implement the relational core of FitsCheck, an outfit-rating social platform: identify its
+business rules, model them in an ER diagram, normalise the design, and implement it in PostgreSQL so
+that the database itself, not the application, enforces as many rules as possible. Every rule is then
+proven by a test that tries to break it.
+
 ## 2. What I built
 
 ### 2.1 Business rules
@@ -54,6 +60,13 @@ stops the redundant value from ever being wrong. The analysis also replaced a pl
 with a declarative composite foreign key. Stored counters are deliberate denormalisation, justified
 and controlled.
 
+### 2.4 Data dictionary
+[data-dictionary.md](data-dictionary.md) documents every table, column, type, default, key,
+constraint, index and trigger. It is **generated from the PostgreSQL catalog** by
+[07_data_dictionary.sql](sql/07_data_dictionary.sql), and the descriptions are stored in the database
+itself with `COMMENT ON` ([06_comments.sql](sql/06_comments.sql)). The dictionary therefore cannot drift
+from the real schema: changing the schema and regenerating updates it.
+
 ## 3. How to run
 
 From the repository root, with the stack running (`docker compose up -d postgres`) and `.env` loaded
@@ -64,6 +77,13 @@ psql "$PG_URL" -v ON_ERROR_STOP=1 -f portfolio-1-database-design/sql/01_schema.s
 psql "$PG_URL" -v ON_ERROR_STOP=1 -f portfolio-1-database-design/sql/02_constraints.sql
 psql "$PG_URL" -v ON_ERROR_STOP=1 -f portfolio-1-database-design/sql/03_triggers.sql
 psql "$PG_URL" -v ON_ERROR_STOP=1 -f portfolio-1-database-design/sql/04_views.sql
+psql "$PG_URL" -v ON_ERROR_STOP=1 -f portfolio-1-database-design/sql/06_comments.sql
+```
+
+Regenerate the data dictionary:
+
+```bash
+psql "$PG_URL" -X -q -At -f portfolio-1-database-design/sql/07_data_dictionary.sql > portfolio-1-database-design/data-dictionary.md
 ```
 
 | Script | Contents |
@@ -72,6 +92,9 @@ psql "$PG_URL" -v ON_ERROR_STOP=1 -f portfolio-1-database-design/sql/04_views.sq
 | [02_constraints.sql](sql/02_constraints.sql) | Alternate keys, checks and foreign keys, all named |
 | [03_triggers.sql](sql/03_triggers.sql) | Cross-table rules (BR-03, BR-12) and `updated_at` stamping |
 | [04_views.sql](sql/04_views.sql) | `v_post_card` (feed card) and `v_counter_drift` (counter reconciliation, BR-20) |
+| [05_constraint_tests.sql](sql/05_constraint_tests.sql) | Rule-breaking tests; rolled back (section 4) |
+| [06_comments.sql](sql/06_comments.sql) | `COMMENT ON` descriptions for the schema, every table, column, type and view |
+| [07_data_dictionary.sql](sql/07_data_dictionary.sql) | Generates `data-dictionary.md` from the catalog |
 
 To start again from empty: `psql "$PG_URL" -c "DROP SCHEMA fitscheck CASCADE"`.
 ## 4. How it was tested
@@ -107,4 +130,42 @@ Rules enforced by transactions rather than the schema, and therefore tested in P
 BR-07 (at least one image per post), BR-16 (entries only while open and within the limit) and BR-17
 (winner set only after the challenge ends).
 ## 6. Analysis
+
+**Where each rule lives is a design decision.** Of the 20 business rules, most are declarative
+(primary keys, unique keys, checks and foreign keys), two need triggers because they must read another
+table (BR-03 blocking, BR-12 no self-votes), and three depend on time or on counting rows under
+concurrency, so they belong in transactions (Portfolio 3). Declarative constraints were preferred
+wherever possible: they cannot be bypassed by any client, they are checked on every write, and the
+planner can rely on them.
+
+**Composite foreign keys enforce cross-row consistency declaratively.** Four rules that look like
+they need triggers ("the voted image belongs to the voted post", "a reply is on its parent's post",
+"an entry uses the entrant's own post", "the winner is an entry of this challenge") are each a
+composite foreign key backed by a unique key that is logically redundant but required by PostgreSQL.
+The normalisation analysis is what revealed BR-15 as an instance of this pattern, replacing a planned
+trigger with a constraint.
+
+**Normalisation was taken to BCNF and deliberately stopped at 3NF in two places.** `vote` and
+`challenge_entry` keep a derivable column so that "one per user" stays a `UNIQUE` constraint; a BCNF
+decomposition would lose that dependency. The redundancy is harmless because a composite foreign key
+stops it from ever holding a wrong value. This is the trade-off between BCNF and dependency
+preservation in practice.
+
+**Denormalised counters trade write cost and drift risk for read speed.** Feed cards show like and
+comment counts on every view, so they are stored rather than counted. `v_counter_drift` makes drift
+detectable; Portfolio 2 measures the read benefit and Portfolio 3 shows how concurrent updates corrupt
+a naively maintained counter and how to prevent it.
 ## 7. Limitations and next steps
+
+- **Transaction rules are not enforced by the schema alone.** A post can be inserted without images,
+  an entry made after a challenge closes, and a winner set early, unless writes go through the
+  transactions built in Portfolio 3. A deferred constraint trigger could enforce "at least one image"
+  at commit time; it was left out to keep the rule in the posting transaction.
+- **Deleting a post deletes reports about it** (cascade). Moderation history would be better kept with
+  soft-deleted posts (`deleted_at`) instead of hard deletes.
+- **Users are deactivated, never deleted.** This protects votes and challenge history but needs a
+  separate anonymisation process to meet a data-erasure request.
+- **Format checks are sanity checks.** The email regex rejects obvious mistakes only; real validation
+  is a confirmation email.
+- **No secondary indexes yet** beyond keys. Indexes are chosen from measured query plans in
+  Portfolio 2.

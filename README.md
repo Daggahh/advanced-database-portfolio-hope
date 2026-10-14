@@ -44,7 +44,7 @@ written fresh for this course; no application code is reused. Every row is synth
 
 | # | Activity | Marks | Folder | Status |
 |---|---|---|---|---|
-| 1 | Database Design and Modelling | 7 | [portfolio-1-database-design](portfolio-1-database-design/) | In progress |
+| 1 | Database Design and Modelling | 7 | [portfolio-1-database-design](portfolio-1-database-design/) | Complete |
 | 2 | Query Processing and Optimisation | 7 | [portfolio-2-query-optimisation](portfolio-2-query-optimisation/) | Not started |
 | 3 | Transactions and Concurrency | 7 | [portfolio-3-transactions-concurrency](portfolio-3-transactions-concurrency/) | Not started |
 | 4 | NoSQL and Advanced Data Models | 7 | [portfolio-4-nosql](portfolio-4-nosql/) | Not started |
@@ -84,7 +84,7 @@ the evidence it produced, and what I learned.
 ├── portfolio-1-database-design/
 │   ├── README.md
 │   ├── diagrams/                          ERD source + PNG export
-│   ├── sql/                               01_schema.sql, 02_constraints.sql, 03_sample_data.sql
+│   ├── sql/                               01-04 schema, 05 constraint tests, 06-07 data dictionary
 │   └── evidence/
 ├── portfolio-2-query-optimisation/
 │   ├── README.md
