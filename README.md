@@ -45,7 +45,7 @@ written fresh for this course; no application code is reused. Every row is synth
 | # | Activity | Marks | Folder | Status |
 |---|---|---|---|---|
 | 1 | Database Design and Modelling | 7 | [portfolio-1-database-design](portfolio-1-database-design/) | Complete |
-| 2 | Query Processing and Optimisation | 7 | [portfolio-2-query-optimisation](portfolio-2-query-optimisation/) | Not started |
+| 2 | Query Processing and Optimisation | 7 | [portfolio-2-query-optimisation](portfolio-2-query-optimisation/) | In progress |
 | 3 | Transactions and Concurrency | 7 | [portfolio-3-transactions-concurrency](portfolio-3-transactions-concurrency/) | Not started |
 | 4 | NoSQL and Advanced Data Models | 7 | [portfolio-4-nosql](portfolio-4-nosql/) | Not started |
 | 5 | Distributed and Cloud Database Exercise | 6 | [portfolio-5-distributed-cloud](portfolio-5-distributed-cloud/) | Not started |
@@ -120,14 +120,24 @@ Prerequisites: Docker with Compose v2, Python 3.12, and `psql`.
 
 ```bash
 cp .env.example .env
-docker compose up -d postgres                 # add mongo redis neo4j when you reach P4
+set -a; . ./.env; set +a                      # load PG_URL and friends into the shell
+docker compose up -d postgres                 # add --profile nosql for P4
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r shared/requirements.txt
 
-psql "$PG_URL" -f portfolio-1-database-design/sql/01_schema.sql
-psql "$PG_URL" -f portfolio-1-database-design/sql/02_constraints.sql
-python shared/seed/generate.py --scale small   # small = about 2k users; large = about 100k users for P2
+for f in 01_schema 02_constraints 03_triggers 04_views 06_comments; do
+  psql "$PG_URL" -v ON_ERROR_STOP=1 -f portfolio-1-database-design/sql/$f.sql
+done
+
+python shared/seed/generate.py --scale small                # about 250k rows, seconds
+python shared/seed/generate.py --scale large --truncate     # about 9M rows for P2; replaces existing data
 ```
+
+The generator ([shared/seed/generate.py](shared/seed/generate.py)) is deterministic: the same `--seed`
+(default 8103) always produces identical data, anchored to a fixed "as of" time of 2026-10-15 00:00 UTC
+rather than the current clock, so query results and plans are repeatable. Popularity is deliberately
+skewed (a few creators, posts and hashtags get most of the activity), every business rule holds, and
+the load runs in one transaction that verifies the stored counters before committing.
 
 Each portfolio README lists the exact commands that reproduce its evidence.
 
