@@ -58,21 +58,23 @@ RETURNS void LANGUAGE sql AS $$
     VALUES (p_rule, p_test, p_where, '-', 'P3');
 $$;
 
-CREATE FUNCTION pg_temp.uid(p_username text) RETURNS bigint LANGUAGE sql AS $$
+-- Lookup helpers are STABLE so the planner evaluates them once per statement and can use an index;
+-- the default VOLATILE would re-run them for every row scanned, which is quadratic on seeded data.
+CREATE FUNCTION pg_temp.uid(p_username text) RETURNS bigint LANGUAGE sql STABLE AS $$
     SELECT id FROM fitscheck.app_user WHERE username = p_username;
 $$;
 
-CREATE FUNCTION pg_temp.post_of(p_username text) RETURNS bigint LANGUAGE sql AS $$
+CREATE FUNCTION pg_temp.post_of(p_username text) RETURNS bigint LANGUAGE sql STABLE AS $$
     SELECT min(p.id) FROM fitscheck.post p
     JOIN fitscheck.app_user u ON u.id = p.author_id WHERE u.username = p_username;
 $$;
 
-CREATE FUNCTION pg_temp.img(p_username text, p_position int) RETURNS bigint LANGUAGE sql AS $$
+CREATE FUNCTION pg_temp.img(p_username text, p_position int) RETURNS bigint LANGUAGE sql STABLE AS $$
     SELECT id FROM fitscheck.post_image
     WHERE post_id = pg_temp.post_of(p_username) AND position = p_position;
 $$;
 
-CREATE FUNCTION pg_temp.chal(p_slug text) RETURNS bigint LANGUAGE sql AS $$
+CREATE FUNCTION pg_temp.chal(p_slug text) RETURNS bigint LANGUAGE sql STABLE AS $$
     SELECT id FROM fitscheck.challenge WHERE slug = p_slug;
 $$;
 
@@ -100,12 +102,12 @@ INSERT INTO post_image (post_id, position, image_url) VALUES
     (pg_temp.post_of('t_tolu'), 1, 'tolu-1.jpg'),
     (pg_temp.post_of('t_solo'), 1, 'solo-1.jpg');
 
-INSERT INTO brand (name, website) VALUES ('Zara', 'https://zara.com');
+INSERT INTO brand (name, website) VALUES ('T Brand', 'https://brand.test');
 INSERT INTO shop_item (post_image_id, brand_id, item_name, price, currency)
-VALUES (pg_temp.img('t_hope', 1), (SELECT id FROM brand WHERE name = 'Zara'), 'Linen shirt', 30000, 'NGN');
+VALUES (pg_temp.img('t_hope', 1), (SELECT id FROM brand WHERE name = 'T Brand'), 'Linen shirt', 30000, 'NGN');
 
-INSERT INTO hashtag (name) VALUES ('ootd');
-INSERT INTO post_hashtag VALUES (pg_temp.post_of('t_hope'), (SELECT id FROM hashtag WHERE name = 'ootd'));
+INSERT INTO hashtag (name) VALUES ('t_ootd');
+INSERT INTO post_hashtag VALUES (pg_temp.post_of('t_hope'), (SELECT id FROM hashtag WHERE name = 't_ootd'));
 
 INSERT INTO follow (follower_id, followed_id) VALUES
     (pg_temp.uid('t_tolu'), pg_temp.uid('t_hope')),
@@ -134,10 +136,14 @@ INSERT INTO challenge_entry (challenge_id, user_id, post_id) VALUES
     (pg_temp.chal('sunday-fits'), pg_temp.uid('t_hope'), pg_temp.post_of('t_hope')),
     (pg_temp.chal('monday-fits'), pg_temp.uid('t_ada'),  pg_temp.post_of('t_ada'));
 
+-- Recount only the fixture's own rows, so the tests stay fast on a fully seeded database
 UPDATE post p SET likes_count    = (SELECT count(*) FROM post_like WHERE post_id = p.id),
-                  comments_count = (SELECT count(*) FROM comment WHERE post_id = p.id);
-UPDATE hashtag h SET posts_count = (SELECT count(*) FROM post_hashtag WHERE hashtag_id = h.id);
-UPDATE challenge c SET entries_count = (SELECT count(*) FROM challenge_entry WHERE challenge_id = c.id);
+                  comments_count = (SELECT count(*) FROM comment WHERE post_id = p.id)
+WHERE p.author_id IN (SELECT id FROM app_user WHERE username LIKE 't\_%');
+UPDATE hashtag h SET posts_count = (SELECT count(*) FROM post_hashtag WHERE hashtag_id = h.id)
+WHERE h.name = 't_ootd';
+UPDATE challenge c SET entries_count = (SELECT count(*) FROM challenge_entry WHERE challenge_id = c.id)
+WHERE c.slug IN ('sunday-fits', 'monday-fits');
 
 SELECT pg_temp.expect_true('fixture', 'valid fixture data is accepted',
     $q$SELECT (SELECT count(*) FROM app_user WHERE username LIKE 't\_%') = 5$q$);
@@ -184,11 +190,11 @@ SELECT pg_temp.expect_error('BR-08', 'lowercase currency code', 'ck_shop_item_cu
     $q$INSERT INTO shop_item (post_image_id, item_name, price, currency) VALUES (pg_temp.img('t_hope', 1), 'Belt', 5000, 'ngn')$q$);
 
 SELECT pg_temp.expect_error('BR-09', 'hashtag with capitals', 'ck_hashtag_name_format',
-    $q$INSERT INTO hashtag (name) VALUES ('OOTD')$q$);
+    $q$INSERT INTO hashtag (name) VALUES ('T_OOTD')$q$);
 SELECT pg_temp.expect_error('BR-09', 'duplicate hashtag', 'uq_hashtag_name',
-    $q$INSERT INTO hashtag (name) VALUES ('ootd')$q$);
+    $q$INSERT INTO hashtag (name) VALUES ('t_ootd')$q$);
 SELECT pg_temp.expect_error('BR-09', 'same hashtag on a post twice', 'pk_post_hashtag',
-    $q$INSERT INTO post_hashtag VALUES (pg_temp.post_of('t_hope'), (SELECT id FROM hashtag WHERE name = 'ootd'))$q$);
+    $q$INSERT INTO post_hashtag VALUES (pg_temp.post_of('t_hope'), (SELECT id FROM hashtag WHERE name = 't_ootd'))$q$);
 
 SELECT pg_temp.expect_error('BR-10', 'same user likes a post twice', 'pk_post_like',
     $q$INSERT INTO post_like (user_id, post_id) VALUES (pg_temp.uid('t_tolu'), pg_temp.post_of('t_hope'))$q$);
@@ -263,7 +269,7 @@ SELECT pg_temp.expect_true('trigger', 'editing a post stamps updated_at server s
     $q$SELECT updated_at = now() FROM post WHERE id = pg_temp.post_of('t_ada')$q$);
 
 SELECT pg_temp.expect_true('BR-08', 'deleting a brand keeps its items with no brand (SET NULL)',
-    $q$WITH d AS (DELETE FROM brand WHERE name = 'Zara' RETURNING id)
+    $q$WITH d AS (DELETE FROM brand WHERE name = 'T Brand' RETURNING id)
        SELECT (SELECT count(*) FROM d) = 1$q$);
 SELECT pg_temp.expect_true('BR-08', 'the shop item survived the brand delete',
     $q$SELECT brand_id IS NULL FROM shop_item WHERE item_name = 'Linen shirt'$q$);
