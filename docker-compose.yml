@@ -4,6 +4,7 @@ services:
   postgres:
     image: postgres:16
     container_name: fitscheck_postgres
+    restart: unless-stopped
     env_file: .env
     # pg_stat_statements and io timing feed the P2 performance evidence
     command:
