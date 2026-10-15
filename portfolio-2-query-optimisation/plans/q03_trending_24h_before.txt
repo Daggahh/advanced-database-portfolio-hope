@@ -1,0 +1,50 @@
+-- q03_trending_24h [before] captured 2026-10-15 14:11 UTC
+-- execution times (ms): 145.2, 146.4, 145.5; median 145.5
+
+-- Trending: the 20 posts with the most likes in the last 24 hours.
+SELECT pl.post_id, count(*) AS likes_24h
+FROM post_like pl
+WHERE pl.created_at >= :'as_of'::timestamptz - interval '24 hours'
+  AND pl.created_at < :'as_of'
+GROUP BY pl.post_id
+ORDER BY likes_24h DESC, pl.post_id
+LIMIT 20;
+
+                                                                                                 QUERY PLAN                                                                                                  
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=73577.51..73577.56 rows=20 width=16) (actual time=144.584..144.674 rows=20 loops=1)
+   Buffers: shared hit=389 read=30190
+   I/O Timings: shared read=42.461
+   ->  Sort  (cost=73577.51..73643.58 rows=26427 width=16) (actual time=144.583..144.670 rows=20 loops=1)
+         Sort Key: (count(*)) DESC, post_id
+         Sort Method: top-N heapsort  Memory: 26kB
+         Buffers: shared hit=389 read=30190
+         I/O Timings: shared read=42.461
+         ->  Finalize HashAggregate  (cost=72610.03..72874.30 rows=26427 width=16) (actual time=137.305..141.779 rows=33768 loops=1)
+               Group Key: post_id
+               Batches: 1  Memory Usage: 3857kB
+               Buffers: shared hit=386 read=30190
+               I/O Timings: shared read=42.461
+               ->  Gather  (cost=66796.09..72345.76 rows=52854 width=16) (actual time=126.035..129.721 rows=34303 loops=1)
+                     Workers Planned: 2
+                     Workers Launched: 2
+                     Buffers: shared hit=386 read=30190
+                     I/O Timings: shared read=42.461
+                     ->  Partial HashAggregate  (cost=65796.09..66060.36 rows=26427 width=16) (actual time=122.997..124.564 rows=11434 loops=3)
+                           Group Key: post_id
+                           Batches: 1  Memory Usage: 1553kB
+                           Buffers: shared hit=386 read=30190
+                           I/O Timings: shared read=42.461
+                           Worker 0:  Batches: 1  Memory Usage: 1809kB
+                           Worker 1:  Batches: 1  Memory Usage: 1553kB
+                           ->  Parallel Seq Scan on post_like pl  (cost=0.00..65518.28 rows=55562 width=8) (actual time=0.099..113.370 rows=45211 loops=3)
+                                 Filter: ((created_at < '2026-10-15 00:00:00+00'::timestamp with time zone) AND (created_at >= ('2026-10-15 00:00:00+00'::timestamp with time zone - '24:00:00'::interval)))
+                                 Rows Removed by Filter: 1552098
+                                 Buffers: shared hit=386 read=30190
+                                 I/O Timings: shared read=42.461
+ Planning:
+   Buffers: shared hit=87
+ Planning Time: 0.281 ms
+ Execution Time: 145.548 ms
+(34 rows)
+

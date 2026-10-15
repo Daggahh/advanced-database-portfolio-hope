@@ -1,0 +1,47 @@
+-- q08_likes_this_month [before] captured 2026-10-15 14:11 UTC
+-- execution times (ms): 311.9, 332.2, 331.1; median 331.1
+
+-- Likes per day so far this month: a time-range report over the largest table.
+SELECT date_trunc('day', created_at) AS day, count(*) AS likes
+FROM post_like
+WHERE created_at >= :'month_start' AND created_at < :'as_of'
+GROUP BY 1
+ORDER BY 1;
+
+                                                                                  QUERY PLAN                                                                                  
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Finalize GroupAggregate  (cost=111622.80..243901.78 rows=1091524 width=16) (actual time=274.751..315.927 rows=14 loops=1)
+   Group Key: (date_trunc('day'::text, created_at))
+   Buffers: shared hit=845 read=29805, temp read=1598 written=1603
+   I/O Timings: shared read=57.541, temp read=1.934 write=8.620
+   ->  Gather Merge  (cost=111622.80..225709.71 rows=909604 width=16) (actual time=271.696..315.852 rows=42 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         Buffers: shared hit=845 read=29805, temp read=1598 written=1603
+         I/O Timings: shared read=57.541, temp read=1.934 write=8.620
+         ->  Partial GroupAggregate  (cost=110622.77..119718.81 rows=454802 width=16) (actual time=213.287..254.548 rows=14 loops=3)
+               Group Key: (date_trunc('day'::text, created_at))
+               Buffers: shared hit=845 read=29805, temp read=1598 written=1603
+               I/O Timings: shared read=57.541, temp read=1.934 write=8.620
+               ->  Sort  (cost=110622.77..111759.78 rows=454802 width=8) (actual time=210.935..234.953 rows=361941 loops=3)
+                     Sort Key: (date_trunc('day'::text, created_at))
+                     Sort Method: external merge  Disk: 4480kB
+                     Buffers: shared hit=845 read=29805, temp read=1598 written=1603
+                     I/O Timings: shared read=57.541, temp read=1.934 write=8.620
+                     Worker 0:  Sort Method: external merge  Disk: 4520kB
+                     Worker 1:  Sort Method: external merge  Disk: 3784kB
+                     ->  Parallel Seq Scan on post_like  (cost=0.00..61663.53 rows=454802 width=8) (actual time=5.034..167.412 rows=361941 loops=3)
+                           Filter: ((created_at >= '2026-10-01 00:00:00+00'::timestamp with time zone) AND (created_at < '2026-10-15 00:00:00+00'::timestamp with time zone))
+                           Rows Removed by Filter: 1235368
+                           Buffers: shared hit=771 read=29805
+                           I/O Timings: shared read=57.541
+ Planning:
+   Buffers: shared hit=84
+ Planning Time: 0.272 ms
+ JIT:
+   Functions: 27
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 1.165 ms, Inlining 0.000 ms, Optimization 0.794 ms, Emission 14.235 ms, Total 16.194 ms
+ Execution Time: 331.139 ms
+(33 rows)
+

@@ -1,0 +1,24 @@
+  id   |        username         |     full_name      
+-------+-------------------------+--------------------
+ 40259 | abdullahibabtunde.40259 | Abdullahi Babtunde
+ 85190 | adaezebabtunde.85190    | Adaeze Babtunde
+ 97037 | adaezebabtunde.97037    | Adaeze Babtunde
+ 21089 | adedayobabtunde.21089   | Adedayo Babtunde
+ 53581 | adekitanbabtunde.53581  | Adekitan Babtunde
+  9167 | adekolababtunde.9167    | Adekola Babtunde
+ 54697 | adekunlebabtunde.54697  | Adekunle Babtunde
+ 71737 | adeniyibabtunde.71737   | Adeniyi Babtunde
+ 31839 | adeshinababtunde.31839  | Adeshina Babtunde
+ 44371 | adeshinababtunde.44371  | Adeshina Babtunde
+ 23567 | adetokebabtunde.23567   | Adetoke Babtunde
+  2199 | adetounbabtunde.2199    | Adetoun Babtunde
+ 16511 | adetounbabtunde.16511   | Adetoun Babtunde
+ 81417 | adetounbabtunde.81417   | Adetoun Babtunde
+ 94196 | adigunbabtunde.94196    | Adigun Babtunde
+ 41044 | agnesbabtunde.41044     | Agnes Babtunde
+ 22315 | ajanibabtunde.22315     | Ajani Babtunde
+  5639 | ajokebabtunde.5639      | Ajoke Babtunde
+ 77027 | akinwalebabtunde.77027  | Akinwale Babtunde
+ 83914 | alamubabtunde.83914     | Alamu Babtunde
+(20 rows)
+

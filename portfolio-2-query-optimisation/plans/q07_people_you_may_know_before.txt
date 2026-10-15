@@ -1,0 +1,54 @@
+-- q07_people_you_may_know [before] captured 2026-10-15 14:11 UTC
+-- execution times (ms): 0.3, 0.3, 0.3; median 0.3
+
+-- People you may know: accounts followed by the people I follow, that I do not follow yet.
+SELECT f2.followed_id AS suggestion, count(*) AS mutual_follows
+FROM follow f1
+JOIN follow f2 ON f2.follower_id = f1.followed_id
+WHERE f1.follower_id = :feed_user
+  AND f2.followed_id <> :feed_user
+  AND NOT EXISTS (SELECT 1 FROM follow x
+                  WHERE x.follower_id = :feed_user AND x.followed_id = f2.followed_id)
+GROUP BY f2.followed_id
+ORDER BY mutual_follows DESC, suggestion
+LIMIT 10;
+
+                                                                        QUERY PLAN                                                                         
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=72.87..72.90 rows=10 width=16) (actual time=0.224..0.226 rows=10 loops=1)
+   Buffers: shared hit=60
+   ->  Sort  (cost=72.87..73.08 rows=83 width=16) (actual time=0.223..0.224 rows=10 loops=1)
+         Sort Key: (count(*)) DESC, f2.followed_id
+         Sort Method: top-N heapsort  Memory: 25kB
+         Buffers: shared hit=60
+         ->  HashAggregate  (cost=70.25..71.08 rows=83 width=16) (actual time=0.187..0.195 rows=94 loops=1)
+               Group Key: f2.followed_id
+               Batches: 1  Memory Usage: 24kB
+               Buffers: shared hit=57
+               ->  Hash Anti Join  (cost=9.57..69.83 rows=83 width=8) (actual time=0.059..0.168 rows=105 loops=1)
+                     Hash Cond: (f2.followed_id = x.followed_id)
+                     Buffers: shared hit=57
+                     ->  Nested Loop  (cost=0.85..59.85 rows=97 width=8) (actual time=0.035..0.133 rows=120 loops=1)
+                           Buffers: shared hit=53
+                           ->  Index Only Scan using pk_follow on follow f1  (cost=0.42..8.60 rows=10 width=8) (actual time=0.028..0.029 rows=15 loops=1)
+                                 Index Cond: (follower_id = 82114)
+                                 Heap Fetches: 0
+                                 Buffers: shared hit=7
+                           ->  Index Only Scan using pk_follow on follow f2  (cost=0.42..5.03 rows=10 width=16) (actual time=0.006..0.006 rows=8 loops=15)
+                                 Index Cond: (follower_id = f1.followed_id)
+                                 Filter: (followed_id <> 82114)
+                                 Heap Fetches: 0
+                                 Buffers: shared hit=46
+                     ->  Hash  (cost=8.60..8.60 rows=10 width=8) (actual time=0.013..0.013 rows=15 loops=1)
+                           Buckets: 1024  Batches: 1  Memory Usage: 9kB
+                           Buffers: shared hit=4
+                           ->  Index Only Scan using pk_follow on follow x  (cost=0.42..8.60 rows=10 width=8) (actual time=0.005..0.007 rows=15 loops=1)
+                                 Index Cond: (follower_id = 82114)
+                                 Heap Fetches: 0
+                                 Buffers: shared hit=4
+ Planning:
+   Buffers: shared hit=108
+ Planning Time: 0.410 ms
+ Execution Time: 0.287 ms
+(35 rows)
+

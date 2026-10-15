@@ -1,0 +1,76 @@
+-- q11_brands_for_popular_tag [before] captured 2026-10-15 14:11 UTC
+-- execution times (ms): 360.2, 290.5, 295.5; median 295.5
+
+-- Brands most often worn in posts carrying a popular hashtag.
+SELECT b.name, count(*) AS items
+FROM hashtag h
+JOIN post_hashtag ph ON ph.hashtag_id = h.id
+JOIN post_image pi ON pi.post_id = ph.post_id
+JOIN shop_item si ON si.post_image_id = pi.id
+JOIN brand b ON b.id = si.brand_id
+WHERE h.name = :'popular_tag'
+GROUP BY b.name
+ORDER BY items DESC, b.name
+LIMIT 10;
+
+                                                                                                 QUERY PLAN                                                                                                 
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=12864.09..12864.12 rows=10 width=17) (actual time=293.475..295.230 rows=10 loops=1)
+   Buffers: shared hit=300846
+   ->  Sort  (cost=12864.09..12864.42 rows=131 width=17) (actual time=293.474..295.227 rows=10 loops=1)
+         Sort Key: (count(*)) DESC, b.name
+         Sort Method: top-N heapsort  Memory: 26kB
+         Buffers: shared hit=300846
+         ->  Finalize GroupAggregate  (cost=12849.56..12861.26 rows=131 width=17) (actual time=285.549..295.093 rows=400 loops=1)
+               Group Key: b.name
+               Buffers: shared hit=300843
+               ->  Gather Merge  (cost=12849.56..12859.57 rows=77 width=17) (actual time=285.504..294.764 rows=800 loops=1)
+                     Workers Planned: 1
+                     Workers Launched: 1
+                     Buffers: shared hit=300843
+                     ->  Partial GroupAggregate  (cost=11849.55..11850.89 rows=77 width=17) (actual time=273.658..280.509 rows=400 loops=2)
+                           Group Key: b.name
+                           Buffers: shared hit=300843
+                           ->  Sort  (cost=11849.55..11849.74 rows=77 width=9) (actual time=273.634..275.429 rows=29925 loops=2)
+                                 Sort Key: b.name
+                                 Sort Method: quicksort  Memory: 1407kB
+                                 Buffers: shared hit=300843
+                                 Worker 0:  Sort Method: quicksort  Memory: 1521kB
+                                 ->  Hash Join  (cost=6629.34..11847.13 rows=77 width=9) (actual time=170.831..225.531 rows=29925 loops=2)
+                                       Hash Cond: (si.brand_id = b.id)
+                                       Buffers: shared hit=300835
+                                       ->  Parallel Hash Join  (cost=6617.34..11834.93 rows=77 width=8) (actual time=170.693..219.366 rows=37318 loops=2)
+                                             Hash Cond: (si.post_image_id = pi.id)
+                                             Buffers: shared hit=300814
+                                             ->  Parallel Seq Scan on shop_item si  (cost=0.00..4547.01 rows=178701 width=16) (actual time=0.005..13.036 rows=151896 loops=2)
+                                                   Buffers: shared hit=2760
+                                             ->  Parallel Hash  (cost=6615.53..6615.53 rows=145 width=8) (actual time=170.416..170.419 rows=70094 loops=2)
+                                                   Buckets: 262144 (originally 1024)  Batches: 1 (originally 1)  Memory Usage: 9624kB
+                                                   Buffers: shared hit=298054
+                                                   ->  Nested Loop  (cost=8.74..6615.53 rows=145 width=8) (actual time=0.065..142.151 rows=70094 loops=2)
+                                                         Buffers: shared hit=298054
+                                                         ->  Hash Join  (cost=8.31..6582.37 rows=60 width=8) (actual time=0.045..49.420 rows=36808 loops=2)
+                                                               Hash Cond: (ph.hashtag_id = h.id)
+                                                               Buffers: shared hit=2791
+                                                               ->  Parallel Seq Scan on post_hashtag ph  (cost=0.00..5785.50 rows=300150 width=16) (actual time=0.004..19.397 rows=255128 loops=2)
+                                                                     Buffers: shared hit=2784
+                                                               ->  Hash  (cost=8.30..8.30 rows=1 width=8) (actual time=0.025..0.027 rows=1 loops=2)
+                                                                     Buckets: 1024  Batches: 1  Memory Usage: 9kB
+                                                                     Buffers: shared hit=7
+                                                                     ->  Index Scan using uq_hashtag_name on hashtag h  (cost=0.28..8.30 rows=1 width=8) (actual time=0.023..0.023 rows=1 loops=2)
+                                                                           Index Cond: ((name)::text = 'ootd'::text)
+                                                                           Buffers: shared hit=7
+                                                         ->  Index Scan using uq_post_image_post_position on post_image pi  (cost=0.42..0.53 rows=2 width=16) (actual time=0.002..0.002 rows=2 loops=73616)
+                                                               Index Cond: (post_id = ph.post_id)
+                                                               Buffers: shared hit=295263
+                                       ->  Hash  (cost=7.00..7.00 rows=400 width=17) (actual time=0.114..0.114 rows=400 loops=2)
+                                             Buckets: 1024  Batches: 1  Memory Usage: 30kB
+                                             Buffers: shared hit=6
+                                             ->  Seq Scan on brand b  (cost=0.00..7.00 rows=400 width=17) (actual time=0.011..0.053 rows=400 loops=2)
+                                                   Buffers: shared hit=6
+ Planning:
+   Buffers: shared hit=323
+ Planning Time: 1.306 ms
+ Execution Time: 295.465 ms
+(57 rows)
+

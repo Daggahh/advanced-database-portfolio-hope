@@ -1,0 +1,76 @@
+-- q12_brands_for_rare_tag [before] captured 2026-10-15 14:11 UTC
+-- execution times (ms): 69.4, 65.9, 70.0; median 69.4
+
+-- Brands most often worn in posts carrying a rare hashtag (same query, different selectivity).
+SELECT b.name, count(*) AS items
+FROM hashtag h
+JOIN post_hashtag ph ON ph.hashtag_id = h.id
+JOIN post_image pi ON pi.post_id = ph.post_id
+JOIN shop_item si ON si.post_image_id = pi.id
+JOIN brand b ON b.id = si.brand_id
+WHERE h.name = :'rare_tag'
+GROUP BY b.name
+ORDER BY items DESC, b.name
+LIMIT 10;
+
+                                                                                               QUERY PLAN                                                                                               
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=12864.09..12864.12 rows=10 width=17) (actual time=67.011..69.844 rows=5 loops=1)
+   Buffers: shared hit=5604
+   ->  Sort  (cost=12864.09..12864.42 rows=131 width=17) (actual time=67.009..69.842 rows=5 loops=1)
+         Sort Key: (count(*)) DESC, b.name
+         Sort Method: quicksort  Memory: 25kB
+         Buffers: shared hit=5604
+         ->  Finalize GroupAggregate  (cost=12849.56..12861.26 rows=131 width=17) (actual time=66.983..69.819 rows=5 loops=1)
+               Group Key: b.name
+               Buffers: shared hit=5601
+               ->  Gather Merge  (cost=12849.56..12859.57 rows=77 width=17) (actual time=66.978..69.812 rows=5 loops=1)
+                     Workers Planned: 1
+                     Workers Launched: 1
+                     Buffers: shared hit=5601
+                     ->  Partial GroupAggregate  (cost=11849.55..11850.89 rows=77 width=17) (actual time=64.861..64.869 rows=2 loops=2)
+                           Group Key: b.name
+                           Buffers: shared hit=5601
+                           ->  Sort  (cost=11849.55..11849.74 rows=77 width=9) (actual time=64.852..64.858 rows=2 loops=2)
+                                 Sort Key: b.name
+                                 Sort Method: quicksort  Memory: 25kB
+                                 Buffers: shared hit=5601
+                                 Worker 0:  Sort Method: quicksort  Memory: 25kB
+                                 ->  Hash Join  (cost=6629.34..11847.13 rows=77 width=9) (actual time=48.405..64.820 rows=2 loops=2)
+                                       Hash Cond: (si.brand_id = b.id)
+                                       Buffers: shared hit=5593
+                                       ->  Parallel Hash Join  (cost=6617.34..11834.93 rows=77 width=8) (actual time=48.278..64.688 rows=4 loops=2)
+                                             Hash Cond: (si.post_image_id = pi.id)
+                                             Buffers: shared hit=5572
+                                             ->  Parallel Seq Scan on shop_item si  (cost=0.00..4547.01 rows=178701 width=16) (actual time=0.014..11.911 rows=151896 loops=2)
+                                                   Buffers: shared hit=2760
+                                             ->  Parallel Hash  (cost=6615.53..6615.53 rows=145 width=8) (actual time=40.342..40.345 rows=6 loops=2)
+                                                   Buckets: 1024  Batches: 1  Memory Usage: 72kB
+                                                   Buffers: shared hit=2812
+                                                   ->  Nested Loop  (cost=8.74..6615.53 rows=145 width=8) (actual time=9.979..40.254 rows=6 loops=2)
+                                                         Buffers: shared hit=2812
+                                                         ->  Hash Join  (cost=8.31..6582.37 rows=60 width=8) (actual time=9.749..39.958 rows=2 loops=2)
+                                                               Hash Cond: (ph.hashtag_id = h.id)
+                                                               Buffers: shared hit=2791
+                                                               ->  Parallel Seq Scan on post_hashtag ph  (cost=0.00..5785.50 rows=300150 width=16) (actual time=0.004..18.544 rows=255128 loops=2)
+                                                                     Buffers: shared hit=2784
+                                                               ->  Hash  (cost=8.30..8.30 rows=1 width=8) (actual time=0.027..0.028 rows=1 loops=2)
+                                                                     Buckets: 1024  Batches: 1  Memory Usage: 9kB
+                                                                     Buffers: shared hit=7
+                                                                     ->  Index Scan using uq_hashtag_name on hashtag h  (cost=0.28..8.30 rows=1 width=8) (actual time=0.025..0.025 rows=1 loops=2)
+                                                                           Index Cond: ((name)::text = 'sneakers_2916'::text)
+                                                                           Buffers: shared hit=7
+                                                         ->  Index Scan using uq_post_image_post_position on post_image pi  (cost=0.42..0.53 rows=2 width=16) (actual time=0.109..0.111 rows=2 loops=5)
+                                                               Index Cond: (post_id = ph.post_id)
+                                                               Buffers: shared hit=21
+                                       ->  Hash  (cost=7.00..7.00 rows=400 width=17) (actual time=0.102..0.103 rows=400 loops=2)
+                                             Buckets: 1024  Batches: 1  Memory Usage: 30kB
+                                             Buffers: shared hit=6
+                                             ->  Seq Scan on brand b  (cost=0.00..7.00 rows=400 width=17) (actual time=0.013..0.042 rows=400 loops=2)
+                                                   Buffers: shared hit=6
+ Planning:
+   Buffers: shared hit=323
+ Planning Time: 1.233 ms
+ Execution Time: 69.961 ms
+(57 rows)
+

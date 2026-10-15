@@ -1,0 +1,46 @@
+-- q02_home_feed_deep_page [before] captured 2026-10-15 14:11 UTC
+-- execution times (ms): 20.8, 20.9, 21.0; median 20.9
+
+-- Home feed page 101 (posts 2,001 to 2,020) using OFFSET pagination.
+SELECT p.id, p.author_id, p.caption, p.likes_count, p.comments_count, p.created_at
+FROM follow f
+JOIN post p ON p.author_id = f.followed_id
+WHERE f.follower_id = :feed_user
+  AND p.created_at < :'as_of'
+ORDER BY p.created_at DESC, p.id DESC
+OFFSET 2000
+LIMIT 20;
+
+                                                                       QUERY PLAN                                                                        
+---------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=6045.26..6045.37 rows=1 width=47) (actual time=18.806..20.890 rows=20 loops=1)
+   Buffers: shared hit=3285
+   ->  Gather Merge  (cost=6036.39..6045.26 rows=76 width=47) (actual time=18.329..20.830 rows=2020 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         Buffers: shared hit=3285
+         ->  Sort  (cost=5036.37..5036.46 rows=38 width=47) (actual time=15.544..15.651 rows=1050 loops=3)
+               Sort Key: p.created_at DESC, p.id DESC
+               Sort Method: quicksort  Memory: 358kB
+               Buffers: shared hit=3285
+               Worker 0:  Sort Method: quicksort  Memory: 411kB
+               Worker 1:  Sort Method: quicksort  Memory: 304kB
+               ->  Hash Join  (cost=8.72..5035.37 rows=38 width=47) (actual time=0.167..14.547 rows=2778 loops=3)
+                     Hash Cond: (p.author_id = f.followed_id)
+                     Buffers: shared hit=3255
+                     ->  Parallel Seq Scan on post p  (cost=0.00..4698.50 rows=124988 width=47) (actual time=0.012..9.376 rows=100000 loops=3)
+                           Filter: (created_at < '2026-10-15 00:00:00+00'::timestamp with time zone)
+                           Buffers: shared hit=3136
+                     ->  Hash  (cost=8.60..8.60 rows=10 width=8) (actual time=0.061..0.062 rows=15 loops=3)
+                           Buckets: 1024  Batches: 1  Memory Usage: 9kB
+                           Buffers: shared hit=23
+                           ->  Index Only Scan using pk_follow on follow f  (cost=0.42..8.60 rows=10 width=8) (actual time=0.050..0.052 rows=15 loops=3)
+                                 Index Cond: (follower_id = 82114)
+                                 Heap Fetches: 0
+                                 Buffers: shared hit=23
+ Planning:
+   Buffers: shared hit=161
+ Planning Time: 0.569 ms
+ Execution Time: 20.977 ms
+(29 rows)
+

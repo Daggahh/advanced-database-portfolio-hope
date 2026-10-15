@@ -1,0 +1,32 @@
+-- q09_like_count_counted [before] captured 2026-10-15 14:11 UTC
+-- execution times (ms): 112.9, 105.7, 138.9; median 112.9
+
+-- Like count computed by counting rows (what the feed would need without the stored counter).
+SELECT count(*) AS likes
+FROM post_like
+WHERE post_id = :top_post;
+
+                                                                  QUERY PLAN                                                                  
+----------------------------------------------------------------------------------------------------------------------------------------------
+ Finalize Aggregate  (cost=56639.81..56639.82 rows=1 width=8) (actual time=134.791..138.799 rows=1 loops=1)
+   Buffers: shared hit=1156 read=29420
+   I/O Timings: shared read=78.164
+   ->  Gather  (cost=56639.60..56639.81 rows=2 width=8) (actual time=134.133..138.787 rows=3 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         Buffers: shared hit=1156 read=29420
+         I/O Timings: shared read=78.164
+         ->  Partial Aggregate  (cost=55639.60..55639.61 rows=1 width=8) (actual time=130.267..130.268 rows=1 loops=3)
+               Buffers: shared hit=1156 read=29420
+               I/O Timings: shared read=78.164
+               ->  Parallel Seq Scan on post_like  (cost=0.00..55534.77 rows=41931 width=0) (actual time=125.324..128.568 rows=33333 loops=3)
+                     Filter: (post_id = 160949)
+                     Rows Removed by Filter: 1563976
+                     Buffers: shared hit=1156 read=29420
+                     I/O Timings: shared read=78.164
+ Planning:
+   Buffers: shared hit=73
+ Planning Time: 0.276 ms
+ Execution Time: 138.870 ms
+(20 rows)
+

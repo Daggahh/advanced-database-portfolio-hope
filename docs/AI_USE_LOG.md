@@ -48,3 +48,12 @@ A dated record of AI-assisted work on the portfolio. Summarised in `AI_USE_DECLA
 - Files touched: portfolio-1-database-design/sql/06_comments.sql, sql/07_data_dictionary.sql,
   data-dictionary.md, portfolio-1-database-design/README.md, README.md
 - My verification: I reviewed the generated dictionary and reworded the analysis.
+
+## 2026-10-15 - Seed generator and Portfolio 2 baseline
+- Tool: Claude Code
+- Used for: writing the synthetic data generator (shared/seed/generate.py), fixing two constraint-test
+  bugs that appeared at scale, writing the 12 Portfolio 2 queries, params.sql and run_plans.py.
+- Files touched: shared/seed/generate.py, portfolio-1-database-design/sql/05_constraint_tests.sql,
+  docker-compose.yml, README.md, portfolio-2-query-optimisation/ (sql, run_plans.py, plans, evidence)
+- My verification: I ran the small and large loads, checked determinism by checksum, re-ran the
+  Portfolio 1 tests on the seeded data, ran the baseline and reviewed the plans.

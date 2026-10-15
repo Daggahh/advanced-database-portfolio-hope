@@ -1,0 +1,73 @@
+Captured 2026-10-15 14:11 UTC
+
+                                                       version                                                        
+----------------------------------------------------------------------------------------------------------------------
+ PostgreSQL 16.14 (Debian 16.14-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+(1 row)
+
+              name               | setting | unit 
+---------------------------------+---------+------
+ default_statistics_target       | 100     | 
+ effective_cache_size            | 524288  | 8kB
+ jit                             | on      | 
+ max_parallel_workers_per_gather | 2       | 
+ random_page_cost                | 4       | 
+ shared_buffers                  | 16384   | 8kB
+ work_mem                        | 4096    | kB
+(7 rows)
+
+   table_name    |  rows   | total_size 
+-----------------+---------+------------
+ post_like       | 4792084 | 430 MB
+ vote            | 1000409 | 126 MB
+ follow          |  893880 | 80 MB
+ comment         |  763273 | 117 MB
+ post_image      |  571220 | 102 MB
+ post_hashtag    |  510255 | 37 MB
+ shop_item       |  303792 | 28 MB
+ notification    |  300000 | 29 MB
+ post            |  300000 | 40 MB
+ app_user        |  100000 | 35 MB
+ user_device     |   93261 | 18 MB
+ challenge_entry |   11551 | 1824 kB
+ hashtag         |    5000 | 720 kB
+ report          |     600 | 136 kB
+ block           |     500 | 96 kB
+ brand           |     400 | 120 kB
+ challenge       |     200 | 144 kB
+(17 rows)
+
+         index_name          |   table_name    |  size   
+-----------------------------+-----------------+---------
+ pk_app_user                 | app_user        | 2208 kB
+ uq_app_user_email_ci        | app_user        | 6792 kB
+ uq_app_user_username_ci     | app_user        | 4960 kB
+ pk_block                    | block           | 32 kB
+ pk_brand                    | brand           | 16 kB
+ uq_brand_name               | brand           | 40 kB
+ pk_challenge                | challenge       | 16 kB
+ uq_challenge_slug           | challenge       | 32 kB
+ pk_challenge_entry          | challenge_entry | 272 kB
+ uq_entry_challenge_user     | challenge_entry | 368 kB
+ uq_entry_id_challenge       | challenge_entry | 376 kB
+ pk_comment                  | comment         | 16 MB
+ uq_comment_id_post          | comment         | 23 MB
+ pk_follow                   | follow          | 35 MB
+ pk_hashtag                  | hashtag         | 128 kB
+ uq_hashtag_name             | hashtag         | 232 kB
+ pk_notification             | notification    | 6600 kB
+ pk_post                     | post            | 6616 kB
+ uq_post_id_author           | post            | 9272 kB
+ pk_post_hashtag             | post_hashtag    | 15 MB
+ pk_post_image               | post_image      | 12 MB
+ uq_post_image_id_post       | post_image      | 17 MB
+ uq_post_image_post_position | post_image      | 17 MB
+ pk_post_like                | post_like       | 191 MB
+ pk_report                   | report          | 32 kB
+ pk_shop_item                | shop_item       | 6680 kB
+ pk_user_device              | user_device     | 2056 kB
+ uq_user_device_push_token   | user_device     | 7632 kB
+ pk_vote                     | vote            | 21 MB
+ uq_vote_user_post           | vote            | 39 MB
+(30 rows)
+

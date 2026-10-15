@@ -1,0 +1,65 @@
+-- q05_comment_thread [before] captured 2026-10-15 14:11 UTC
+-- execution times (ms): 560.0, 567.8, 632.2; median 567.8
+
+-- Comment thread: every comment on a post with its replies nested under it (recursive CTE).
+WITH RECURSIVE thread AS (
+    SELECT id, parent_id, author_id, body, 1 AS depth, ARRAY[id] AS path
+    FROM comment
+    WHERE post_id = :thread_post AND parent_id IS NULL
+    UNION ALL
+    SELECT c.id, c.parent_id, c.author_id, c.body, t.depth + 1, t.path || c.id
+    FROM comment c
+    JOIN thread t ON c.parent_id = t.id
+)
+SELECT id, parent_id, depth, author_id, left(body, 40) AS body
+FROM thread
+ORDER BY path
+LIMIT 50;
+
+                                                              QUERY PLAN                                                               
+---------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=219979.04..219979.17 rows=50 width=92) (actual time=618.614..618.709 rows=50 loops=1)
+   Buffers: shared hit=3276 read=66617
+   I/O Timings: shared read=86.127
+   CTE thread
+     ->  Recursive Union  (cost=1000.00..219855.07 rows=2225 width=91) (actual time=1.087..609.753 rows=400 loops=1)
+           Buffers: shared hit=3271 read=66617
+           I/O Timings: shared read=86.127
+           ->  Gather  (cost=1000.00..14960.88 rows=15 width=91) (actual time=1.084..42.848 rows=289 loops=1)
+                 Workers Planned: 2
+                 Workers Launched: 2
+                 Buffers: shared hit=385 read=9599
+                 I/O Timings: shared read=18.452
+                 ->  Parallel Seq Scan on comment  (cost=0.00..13959.38 rows=6 width=91) (actual time=10.324..23.993 rows=96 loops=3)
+                       Filter: ((parent_id IS NULL) AND (post_id = 1332))
+                       Rows Removed by Filter: 254328
+                       Buffers: shared hit=385 read=9599
+                       I/O Timings: shared read=18.452
+           ->  Hash Join  (cost=4.88..20487.19 rows=221 width=91) (actual time=14.802..94.433 rows=18 loops=6)
+                 Hash Cond: (c.parent_id = t.id)
+                 Buffers: shared hit=2886 read=57018
+                 I/O Timings: shared read=67.675
+                 ->  Seq Scan on comment c  (cost=0.00..17616.73 rows=763273 width=55) (actual time=0.082..51.847 rows=763273 loops=6)
+                       Buffers: shared hit=2886 read=57018
+                       I/O Timings: shared read=67.675
+                 ->  Hash  (cost=3.00..3.00 rows=150 width=44) (actual time=0.312..0.312 rows=67 loops=6)
+                       Buckets: 1024  Batches: 1  Memory Usage: 31kB
+                       ->  WorkTable Scan on thread t  (cost=0.00..3.00 rows=150 width=44) (actual time=0.278..0.287 rows=67 loops=6)
+   ->  Sort  (cost=123.98..129.54 rows=2225 width=92) (actual time=610.277..610.280 rows=50 loops=1)
+         Sort Key: thread.path
+         Sort Method: top-N heapsort  Memory: 32kB
+         Buffers: shared hit=3276 read=66617
+         I/O Timings: shared read=86.127
+         ->  CTE Scan on thread  (cost=0.00..50.06 rows=2225 width=92) (actual time=1.094..609.965 rows=400 loops=1)
+               Buffers: shared hit=3271 read=66617
+               I/O Timings: shared read=86.127
+ Planning:
+   Buffers: shared hit=141
+ Planning Time: 0.522 ms
+ JIT:
+   Functions: 26
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 1.962 ms, Inlining 0.000 ms, Optimization 0.994 ms, Emission 18.026 ms, Total 20.982 ms
+ Execution Time: 632.195 ms
+(43 rows)
+

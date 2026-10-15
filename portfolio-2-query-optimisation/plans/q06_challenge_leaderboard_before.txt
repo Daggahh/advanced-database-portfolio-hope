@@ -1,0 +1,59 @@
+-- q06_challenge_leaderboard [before] captured 2026-10-15 14:11 UTC
+-- execution times (ms): 111.5, 112.8, 110.8; median 111.5
+
+-- Challenge leaderboard: entries ranked by the votes their post received.
+SELECT e.id AS entry_id, e.user_id, e.post_id, count(v.id) AS votes,
+       rank() OVER (ORDER BY count(v.id) DESC) AS place
+FROM challenge_entry e
+LEFT JOIN vote v ON v.post_id = e.post_id
+WHERE e.challenge_id = :challenge
+GROUP BY e.id
+ORDER BY place, e.id
+LIMIT 10;
+
+                                                                                  QUERY PLAN                                                                                  
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=23579.84..23579.87 rows=10 width=40) (actual time=110.729..110.733 rows=10 loops=1)
+   Buffers: shared hit=107 read=8287
+   I/O Timings: shared read=9.208
+   ->  Sort  (cost=23579.84..23580.14 rows=120 width=40) (actual time=110.728..110.731 rows=10 loops=1)
+         Sort Key: (rank() OVER (?)), e.id
+         Sort Method: top-N heapsort  Memory: 25kB
+         Buffers: shared hit=107 read=8287
+         I/O Timings: shared read=9.208
+         ->  WindowAgg  (cost=23575.15..23577.25 rows=120 width=40) (actual time=110.665..110.700 rows=120 loops=1)
+               Buffers: shared hit=104 read=8287
+               I/O Timings: shared read=9.208
+               ->  Sort  (cost=23575.15..23575.45 rows=120 width=32) (actual time=110.659..110.665 rows=120 loops=1)
+                     Sort Key: (count(v.id)) DESC
+                     Sort Method: quicksort  Memory: 31kB
+                     Buffers: shared hit=104 read=8287
+                     I/O Timings: shared read=9.208
+                     ->  HashAggregate  (cost=23569.80..23571.00 rows=120 width=32) (actual time=110.624..110.639 rows=120 loops=1)
+                           Group Key: e.id
+                           Batches: 1  Memory Usage: 48kB
+                           Buffers: shared hit=104 read=8287
+                           I/O Timings: shared read=9.208
+                           ->  Hash Right Join  (cost=110.37..23546.70 rows=4620 width=32) (actual time=1.398..110.429 rows=491 loops=1)
+                                 Hash Cond: (v.post_id = e.post_id)
+                                 Buffers: shared hit=104 read=8287
+                                 I/O Timings: shared read=9.208
+                                 ->  Seq Scan on vote v  (cost=0.00..18388.09 rows=1000409 width=16) (actual time=0.064..56.130 rows=1000409 loops=1)
+                                       Buffers: shared hit=97 read=8287
+                                       I/O Timings: shared read=9.208
+                                 ->  Hash  (cost=108.87..108.87 rows=120 width=24) (actual time=0.063..0.064 rows=120 loops=1)
+                                       Buckets: 1024  Batches: 1  Memory Usage: 15kB
+                                       Buffers: shared hit=7
+                                       ->  Bitmap Heap Scan on challenge_entry e  (cost=5.22..108.87 rows=120 width=24) (actual time=0.039..0.048 rows=120 loops=1)
+                                             Recheck Cond: (challenge_id = 92)
+                                             Heap Blocks: exact=2
+                                             Buffers: shared hit=7
+                                             ->  Bitmap Index Scan on uq_entry_challenge_user  (cost=0.00..5.19 rows=120 width=0) (actual time=0.030..0.030 rows=120 loops=1)
+                                                   Index Cond: (challenge_id = 92)
+                                                   Buffers: shared hit=5
+ Planning:
+   Buffers: shared hit=175
+ Planning Time: 0.456 ms
+ Execution Time: 110.819 ms
+(42 rows)
+

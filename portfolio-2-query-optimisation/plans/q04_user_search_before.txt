@@ -1,0 +1,28 @@
+-- q04_user_search [before] captured 2026-10-15 14:11 UTC
+-- execution times (ms): 43.1, 42.6, 38.1; median 42.6
+
+-- People search: users whose name contains a fragment anywhere, case-insensitively.
+SELECT id, username, full_name
+FROM app_user
+WHERE full_name ILIKE '%' || :'name_search' || '%'
+ORDER BY full_name, id
+LIMIT 20;
+
+                                                      QUERY PLAN                                                       
+-----------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=3964.13..3964.18 rows=20 width=41) (actual time=38.094..38.099 rows=20 loops=1)
+   Buffers: shared hit=2694
+   ->  Sort  (cost=3964.13..3966.59 rows=982 width=41) (actual time=38.092..38.095 rows=20 loops=1)
+         Sort Key: full_name, id
+         Sort Method: top-N heapsort  Memory: 27kB
+         Buffers: shared hit=2694
+         ->  Seq Scan on app_user  (cost=0.00..3938.00 rows=982 width=41) (actual time=0.168..37.858 rows=398 loops=1)
+               Filter: ((full_name)::text ~~* '%tunde%'::text)
+               Rows Removed by Filter: 99602
+               Buffers: shared hit=2688
+ Planning:
+   Buffers: shared hit=147
+ Planning Time: 0.474 ms
+ Execution Time: 38.122 ms
+(14 rows)
+
