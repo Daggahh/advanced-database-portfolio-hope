@@ -83,3 +83,12 @@ A dated record of AI-assisted work on the portfolio. Summarised in `AI_USE_DECLA
 - Files touched: portfolio-2-query-optimisation/sql/optimise/05_trending_mv.sql,
   sql/q19_trending_from_mv.sql, evidence/trending_mv_build_and_refresh.txt, plans/, evidence/
 - My verification: I checked q19 returns the same rows as q03 and reviewed the refresh timings.
+
+## 2026-10-16 - Portfolio 2 / README write-up
+- Tool: Claude Code
+- Used for: drafting the Portfolio 2 README (objective, method, before/after table, costs,
+  partitioning findings, analysis and limitations) from the measured evidence.
+- Files touched: portfolio-2-query-optimisation/README.md, sql/params.sql (comment),
+  plans/q14 diagnostic header, README.md (status)
+- My verification: I checked every figure in the README against the timings CSVs and evidence files;
+  three wrong figures (index disk total, posts per followed author, a run command) were corrected.

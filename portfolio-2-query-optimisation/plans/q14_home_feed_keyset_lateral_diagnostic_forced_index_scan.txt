@@ -1,5 +1,6 @@
 -- DIAGNOSTIC ONLY: q14 with enable_bitmapscan = off, to show the ordered index scan the planner rejected
--- because it estimated 6 posts per followed author (the average author) instead of the ~556 these prolific authors have.
+-- because it estimated 6 posts per followed author (from the average author, about 10 posts) instead of the
+-- about 833 each that these prolific authors have (8,333 posts across 10 posting authors).
 
                                                                                                                   QUERY PLAN                                                                                                                  
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

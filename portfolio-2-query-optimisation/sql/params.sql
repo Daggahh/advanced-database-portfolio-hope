@@ -3,7 +3,7 @@
 -- as_of is the generator's anchor, so time windows are repeatable instead of moving with now().
 \set as_of '2026-10-15 00:00:00+00'
 \set month_start '2026-10-01 00:00:00+00'
--- follows 10 creators who have 8,333 posts between them: a heavy home feed
+-- follows 15 accounts, 10 of whom post, with 8,333 posts between them: a heavy home feed
 \set feed_user 82114
 -- 400 comments, the longest thread
 \set thread_post 1332
