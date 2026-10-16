@@ -1,0 +1,58 @@
+-- q17_brands_for_rare_tag_by_id [after] captured 2026-10-16 13:44 UTC
+-- execution times (ms): 0.4, 0.3, 0.3; median 0.3
+
+-- q12 rewritten to filter by the rare tag's id, looked up first. With a literal id the
+-- planner reads that id's real frequency from the post_hashtag statistics and picks a plan to match.
+SELECT b.name, count(*) AS items
+FROM post_hashtag ph
+JOIN post_image pi ON pi.post_id = ph.post_id
+JOIN shop_item si ON si.post_image_id = pi.id
+JOIN brand b ON b.id = si.brand_id
+WHERE ph.hashtag_id = :rare_tag_id
+GROUP BY b.name
+ORDER BY items DESC, b.name
+LIMIT 10;
+
+                                                                                      QUERY PLAN                                                                                       
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=783.64..783.67 rows=10 width=17) (actual time=0.228..0.230 rows=5 loops=1)
+   Buffers: shared hit=87
+   ->  Sort  (cost=783.64..783.80 rows=65 width=17) (actual time=0.227..0.229 rows=5 loops=1)
+         Sort Key: (count(*)) DESC, b.name
+         Sort Method: quicksort  Memory: 25kB
+         Buffers: shared hit=87
+         ->  GroupAggregate  (cost=781.10..782.24 rows=65 width=17) (actual time=0.205..0.208 rows=5 loops=1)
+               Group Key: b.name
+               Buffers: shared hit=81
+               ->  Sort  (cost=781.10..781.26 rows=65 width=9) (actual time=0.201..0.202 rows=5 loops=1)
+                     Sort Key: b.name
+                     Sort Method: quicksort  Memory: 25kB
+                     Buffers: shared hit=81
+                     ->  Nested Loop  (cost=5.81..779.14 rows=65 width=9) (actual time=0.083..0.187 rows=5 loops=1)
+                           Buffers: shared hit=81
+                           ->  Nested Loop  (cost=5.67..768.41 rows=65 width=8) (actual time=0.076..0.169 rows=9 loops=1)
+                                 Buffers: shared hit=71
+                                 ->  Nested Loop  (cost=5.24..710.48 rows=122 width=8) (actual time=0.054..0.115 rows=11 loops=1)
+                                       Buffers: shared hit=31
+                                       ->  Bitmap Heap Scan on post_hashtag ph  (cost=4.82..188.75 rows=51 width=8) (actual time=0.038..0.065 rows=5 loops=1)
+                                             Recheck Cond: (hashtag_id = 2917)
+                                             Heap Blocks: exact=5
+                                             Buffers: shared hit=11
+                                             ->  Bitmap Index Scan on ix_post_hashtag_hashtag  (cost=0.00..4.81 rows=51 width=0) (actual time=0.032..0.032 rows=5 loops=1)
+                                                   Index Cond: (hashtag_id = 2917)
+                                                   Buffers: shared hit=6
+                                       ->  Index Scan using uq_post_image_post_position on post_image pi  (cost=0.42..10.21 rows=2 width=16) (actual time=0.009..0.009 rows=2 loops=5)
+                                             Index Cond: (post_id = ph.post_id)
+                                             Buffers: shared hit=20
+                                 ->  Index Scan using ix_shop_item_image on shop_item si  (cost=0.42..0.46 rows=1 width=16) (actual time=0.004..0.005 rows=1 loops=11)
+                                       Index Cond: (post_image_id = pi.id)
+                                       Buffers: shared hit=40
+                           ->  Index Scan using pk_brand on brand b  (cost=0.15..0.17 rows=1 width=17) (actual time=0.002..0.002 rows=1 loops=9)
+                                 Index Cond: (id = si.brand_id)
+                                 Buffers: shared hit=10
+ Planning:
+   Buffers: shared hit=311
+ Planning Time: 0.903 ms
+ Execution Time: 0.307 ms
+(39 rows)
+

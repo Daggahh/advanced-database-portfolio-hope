@@ -1,0 +1,39 @@
+-- q01_home_feed [after] captured 2026-10-16 13:42 UTC
+-- execution times (ms): 6.8, 8.8, 6.5; median 6.8
+
+-- Home feed: the newest 20 posts from the people a user follows.
+SELECT p.id, p.author_id, p.caption, p.likes_count, p.comments_count, p.created_at
+FROM follow f
+JOIN post p ON p.author_id = f.followed_id
+WHERE f.follower_id = :feed_user
+  AND p.created_at < :'as_of'
+ORDER BY p.created_at DESC, p.id DESC
+LIMIT 20;
+
+                                                                     QUERY PLAN                                                                      
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=441.83..441.88 rows=20 width=47) (actual time=6.473..6.476 rows=20 loops=1)
+   Buffers: shared hit=3066
+   ->  Sort  (cost=441.83..442.06 rows=91 width=47) (actual time=6.472..6.473 rows=20 loops=1)
+         Sort Key: p.created_at DESC, p.id DESC
+         Sort Method: top-N heapsort  Memory: 27kB
+         Buffers: shared hit=3066
+         ->  Nested Loop  (cost=4.95..439.41 rows=91 width=47) (actual time=0.049..5.406 rows=8333 loops=1)
+               Buffers: shared hit=3060
+               ->  Index Only Scan using pk_follow on follow f  (cost=0.42..8.60 rows=10 width=8) (actual time=0.032..0.035 rows=15 loops=1)
+                     Index Cond: (follower_id = 82114)
+                     Heap Fetches: 0
+                     Buffers: shared hit=7
+               ->  Bitmap Heap Scan on post p  (cost=4.53..42.98 rows=10 width=47) (actual time=0.067..0.309 rows=556 loops=15)
+                     Recheck Cond: ((f.followed_id = author_id) AND (created_at < '2026-10-15 00:00:00+00'::timestamp with time zone))
+                     Heap Blocks: exact=2966
+                     Buffers: shared hit=3053
+                     ->  Bitmap Index Scan on ix_post_author_created  (cost=0.00..4.52 rows=10 width=0) (actual time=0.045..0.045 rows=556 loops=15)
+                           Index Cond: ((author_id = f.followed_id) AND (created_at < '2026-10-15 00:00:00+00'::timestamp with time zone))
+                           Buffers: shared hit=87
+ Planning:
+   Buffers: shared hit=196
+ Planning Time: 0.455 ms
+ Execution Time: 6.521 ms
+(23 rows)
+

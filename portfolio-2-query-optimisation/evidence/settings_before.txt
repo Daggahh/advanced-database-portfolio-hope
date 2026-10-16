@@ -1,4 +1,4 @@
-Captured 2026-10-15 14:11 UTC
+Captured 2026-10-16 13:41 UTC
 
                                                        version                                                        
 ----------------------------------------------------------------------------------------------------------------------
@@ -18,7 +18,7 @@ Captured 2026-10-15 14:11 UTC
 
    table_name    |  rows   | total_size 
 -----------------+---------+------------
- post_like       | 4792084 | 430 MB
+ post_like       | 4792084 | 435 MB
  vote            | 1000409 | 126 MB
  follow          |  893880 | 80 MB
  comment         |  763273 | 117 MB
@@ -62,7 +62,7 @@ Captured 2026-10-15 14:11 UTC
  pk_post_image               | post_image      | 12 MB
  uq_post_image_id_post       | post_image      | 17 MB
  uq_post_image_post_position | post_image      | 17 MB
- pk_post_like                | post_like       | 191 MB
+ pk_post_like                | post_like       | 193 MB
  pk_report                   | report          | 32 kB
  pk_shop_item                | shop_item       | 6680 kB
  pk_user_device              | user_device     | 2056 kB

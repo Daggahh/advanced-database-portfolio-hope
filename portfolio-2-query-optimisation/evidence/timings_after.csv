@@ -1,0 +1,18 @@
+query,run1_ms,run2_ms,run3_ms,median_ms,planning_ms,top_buffers,same_result_as_before
+q01_home_feed,6.8,8.8,6.5,6.8,0.5,Buffers: shared hit=3066,yes
+q02_home_feed_deep_page,7.4,7.7,7.8,7.7,0.4,Buffers: shared hit=3066,yes
+q03_trending_24h,39.1,49.2,36.8,39.1,0.3,Buffers: shared hit=527,yes
+q04_user_search,1.4,1.8,1.4,1.4,0.9,Buffers: shared hit=388,yes
+q05_comment_thread,1.0,1.7,1.0,1.0,0.6,Buffers: shared hit=1318,yes
+q06_challenge_leaderboard,0.6,0.6,0.6,0.6,0.5,Buffers: shared hit=373,yes
+q07_people_you_may_know,0.3,0.3,0.3,0.3,0.4,Buffers: shared hit=60,yes
+q08_likes_this_month,361.5,366.0,358.9,361.5,0.3,"Buffers: shared hit=4168, temp read=1597 written=1603",yes
+q09_like_count_counted,7.5,8.6,8.8,8.6,0.3,Buffers: shared hit=91,yes
+q10_like_count_stored,0.1,0.1,0.1,0.1,0.3,Buffers: shared hit=7,yes
+q11_brands_for_popular_tag,726.3,462.5,521.0,521.0,2.2,Buffers: shared hit=774872,yes
+q12_brands_for_rare_tag,0.4,0.4,3.6,0.4,3.4,Buffers: shared hit=80,yes
+q13_home_feed_keyset,16.1,17.2,9.7,16.1,1.4,Buffers: shared hit=2843,yes
+q14_home_feed_keyset_lateral,5.8,9.6,5.5,5.8,0.4,Buffers: shared hit=2843,
+q15_likes_this_month_utc,153.8,165.1,151.5,153.8,0.8,Buffers: shared hit=4183,
+q16_brands_for_popular_tag_by_id,145.7,160.4,168.6,160.4,1.0,Buffers: shared hit=8497 read=4177,
+q17_brands_for_rare_tag_by_id,0.4,0.3,0.3,0.3,0.9,Buffers: shared hit=87,

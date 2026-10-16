@@ -1,0 +1,21 @@
+Write cost of the Portfolio 2 post_like indexes (sql/optimise/write_cost.sql)
+Inserting the same 531,225 likes into a temporary copy of post_like; variants alternated back to back.
+Columns: variant | rows inserted | insert time (ms)
+
+pk_only | 531225 | 7658.9
+all_indexes | 531225 | 642055.0
+pk_only | 531225 | 1217.6
+all_indexes | 531225 | 1909.0
+pk_only | 531225 | 936.4
+all_indexes | 531225 | 1795.7
+pk_only | 531225 | 871.3
+all_indexes | 531225 | 1736.3
+pk_only | 531225 | 838.1
+all_indexes | 531225 | 1997.1
+
+Pair 1 is excluded as warm-up: pk_only ran cold (7.7 s) and all_indexes stalled for 642 s, an outlier
+consistent with an I/O stall on the WSL host rather than index work; no other run exceeded 2 s.
+
+Median of runs 2-5:
+  pk_only      903.9 ms
+  all_indexes 1852.4 ms  (2.05x: the two read indexes double the cost of inserting likes)

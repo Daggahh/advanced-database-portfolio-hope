@@ -1,0 +1,34 @@
+-- q03_trending_24h [after] captured 2026-10-16 13:42 UTC
+-- execution times (ms): 39.1, 49.2, 36.8; median 39.1
+
+-- Trending: the 20 posts with the most likes in the last 24 hours.
+SELECT pl.post_id, count(*) AS likes_24h
+FROM post_like pl
+WHERE pl.created_at >= :'as_of'::timestamptz - interval '24 hours'
+  AND pl.created_at < :'as_of'
+GROUP BY pl.post_id
+ORDER BY likes_24h DESC, pl.post_id
+LIMIT 20;
+
+                                                                                             QUERY PLAN                                                                                              
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=8897.36..8897.41 rows=20 width=16) (actual time=36.339..36.343 rows=20 loops=1)
+   Buffers: shared hit=527
+   ->  Sort  (cost=8897.36..8965.12 rows=27102 width=16) (actual time=36.338..36.340 rows=20 loops=1)
+         Sort Key: (count(*)) DESC, post_id
+         Sort Method: top-N heapsort  Memory: 26kB
+         Buffers: shared hit=527
+         ->  HashAggregate  (cost=7905.17..8176.19 rows=27102 width=16) (actual time=29.025..33.409 rows=33768 loops=1)
+               Group Key: post_id
+               Batches: 1  Memory Usage: 3857kB
+               Buffers: shared hit=524
+               ->  Index Only Scan using ix_post_like_created on post_like pl  (cost=0.43..7190.80 rows=142874 width=8) (actual time=0.017..11.256 rows=135632 loops=1)
+                     Index Cond: ((created_at >= ('2026-10-15 00:00:00+00'::timestamp with time zone - '24:00:00'::interval)) AND (created_at < '2026-10-15 00:00:00+00'::timestamp with time zone))
+                     Heap Fetches: 4
+                     Buffers: shared hit=524
+ Planning:
+   Buffers: shared hit=135
+ Planning Time: 0.342 ms
+ Execution Time: 36.791 ms
+(18 rows)
+

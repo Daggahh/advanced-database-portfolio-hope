@@ -1,0 +1,14 @@
+     name      | items 
+---------------+-------
+ Label 332     |   193
+ Label 214     |   183
+ Label 84      |   182
+ Label 169     |   181
+ Label 391     |   180
+ Label 98      |   180
+ Label 149     |   179
+ Label 367     |   178
+ Andrea Iyamah |   176
+ Label 247     |   176
+(10 rows)
+

@@ -1,0 +1,41 @@
+-- q13_home_feed_keyset [after] captured 2026-10-16 13:42 UTC
+-- execution times (ms): 16.1, 17.2, 9.7; median 16.1
+
+-- Home feed page 101 using keyset pagination: the same rows as q02, found by continuing after the
+-- last post of page 100 (its created_at and id) instead of counting past 2,000 rows with OFFSET.
+SELECT p.id, p.author_id, p.caption, p.likes_count, p.comments_count, p.created_at
+FROM follow f
+JOIN post p ON p.author_id = f.followed_id
+WHERE f.follower_id = :feed_user
+  AND p.created_at < :'as_of'
+  AND (p.created_at, p.id) < (:'cursor_created'::timestamptz, :cursor_id)
+ORDER BY p.created_at DESC, p.id DESC
+LIMIT 20;
+
+                                                                                                                  QUERY PLAN                                                                                                                  
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=289.03..289.08 rows=20 width=47) (actual time=9.592..9.597 rows=20 loops=1)
+   Buffers: shared hit=2843
+   ->  Sort  (cost=289.03..289.18 rows=57 width=47) (actual time=9.591..9.593 rows=20 loops=1)
+         Sort Key: p.created_at DESC, p.id DESC
+         Sort Method: top-N heapsort  Memory: 28kB
+         Buffers: shared hit=2843
+         ->  Nested Loop  (cost=4.92..287.52 rows=57 width=47) (actual time=0.064..8.292 rows=6333 loops=1)
+               Buffers: shared hit=2837
+               ->  Index Only Scan using pk_follow on follow f  (cost=0.42..8.60 rows=10 width=8) (actual time=0.025..0.029 rows=15 loops=1)
+                     Index Cond: (follower_id = 82114)
+                     Heap Fetches: 0
+                     Buffers: shared hit=4
+               ->  Bitmap Heap Scan on post p  (cost=4.50..27.83 rows=6 width=47) (actual time=0.084..0.494 rows=422 loops=15)
+                     Recheck Cond: ((f.followed_id = author_id) AND (created_at < '2026-10-15 00:00:00+00'::timestamp with time zone) AND (ROW(created_at, id) < ROW('2026-07-18 09:36:13.873242+00'::timestamp with time zone, 133930)))
+                     Heap Blocks: exact=2757
+                     Buffers: shared hit=2833
+                     ->  Bitmap Index Scan on ix_post_author_created  (cost=0.00..4.50 rows=6 width=0) (actual time=0.058..0.058 rows=422 loops=15)
+                           Index Cond: ((author_id = f.followed_id) AND (created_at < '2026-10-15 00:00:00+00'::timestamp with time zone) AND (ROW(created_at, id) < ROW('2026-07-18 09:36:13.873242+00'::timestamp with time zone, 133930)))
+                           Buffers: shared hit=76
+ Planning:
+   Buffers: shared hit=192
+ Planning Time: 0.679 ms
+ Execution Time: 9.673 ms
+(23 rows)
+

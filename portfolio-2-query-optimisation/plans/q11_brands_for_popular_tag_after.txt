@@ -1,0 +1,66 @@
+-- q11_brands_for_popular_tag [after] captured 2026-10-16 13:42 UTC
+-- execution times (ms): 726.3, 462.5, 521.0; median 521.0
+
+-- Brands most often worn in posts carrying a popular hashtag.
+SELECT b.name, count(*) AS items
+FROM hashtag h
+JOIN post_hashtag ph ON ph.hashtag_id = h.id
+JOIN post_image pi ON pi.post_id = ph.post_id
+JOIN shop_item si ON si.post_image_id = pi.id
+JOIN brand b ON b.id = si.brand_id
+WHERE h.name = :'popular_tag'
+GROUP BY b.name
+ORDER BY items DESC, b.name
+LIMIT 10;
+
+                                                                                        QUERY PLAN                                                                                        
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=695.63..695.65 rows=10 width=17) (actual time=520.661..520.667 rows=10 loops=1)
+   Buffers: shared hit=774872
+   ->  Sort  (cost=695.63..695.95 rows=130 width=17) (actual time=520.659..520.664 rows=10 loops=1)
+         Sort Key: (count(*)) DESC, b.name
+         Sort Method: top-N heapsort  Memory: 26kB
+         Buffers: shared hit=774872
+         ->  GroupAggregate  (cost=690.54..692.82 rows=130 width=17) (actual time=514.558..520.574 rows=400 loops=1)
+               Group Key: b.name
+               Buffers: shared hit=774866
+               ->  Sort  (cost=690.54..690.87 rows=130 width=9) (actual time=514.530..516.477 rows=59850 loops=1)
+                     Sort Key: b.name
+                     Sort Method: quicksort  Memory: 2927kB
+                     Buffers: shared hit=774866
+                     ->  Hash Join  (cost=18.71..685.98 rows=130 width=9) (actual time=1.954..373.622 rows=59850 loops=1)
+                           Hash Cond: (si.brand_id = b.id)
+                           Buffers: shared hit=774866
+                           ->  Nested Loop  (cost=6.71..673.64 rows=130 width=8) (actual time=1.873..358.449 rows=74635 loops=1)
+                                 Buffers: shared hit=774863
+                                 ->  Nested Loop  (cost=6.28..557.29 rows=245 width=8) (actual time=1.860..176.786 rows=140188 loops=1)
+                                       Buffers: shared hit=298088
+                                       ->  Nested Loop  (cost=5.86..500.93 rows=102 width=8) (actual time=1.849..26.166 rows=73616 loops=1)
+                                             Buffers: shared hit=2826
+                                             ->  Index Scan using uq_hashtag_name on hashtag h  (cost=0.28..8.30 rows=1 width=8) (actual time=0.043..0.045 rows=1 loops=1)
+                                                   Index Cond: ((name)::text = 'ootd'::text)
+                                                   Buffers: shared hit=3
+                                             ->  Bitmap Heap Scan on post_hashtag ph  (cost=5.58..491.14 rows=149 width=16) (actual time=1.803..17.604 rows=73616 loops=1)
+                                                   Recheck Cond: (h.id = hashtag_id)
+                                                   Heap Blocks: exact=2759
+                                                   Buffers: shared hit=2823
+                                                   ->  Bitmap Index Scan on ix_post_hashtag_hashtag  (cost=0.00..5.54 rows=149 width=0) (actual time=1.501..1.501 rows=73616 loops=1)
+                                                         Index Cond: (hashtag_id = h.id)
+                                                         Buffers: shared hit=64
+                                       ->  Index Scan using uq_post_image_post_position on post_image pi  (cost=0.42..0.53 rows=2 width=16) (actual time=0.001..0.002 rows=2 loops=73616)
+                                             Index Cond: (post_id = ph.post_id)
+                                             Buffers: shared hit=295262
+                                 ->  Index Scan using ix_shop_item_image on shop_item si  (cost=0.42..0.46 rows=1 width=16) (actual time=0.001..0.001 rows=1 loops=140188)
+                                       Index Cond: (post_image_id = pi.id)
+                                       Buffers: shared hit=476775
+                           ->  Hash  (cost=7.00..7.00 rows=400 width=17) (actual time=0.076..0.076 rows=400 loops=1)
+                                 Buckets: 1024  Batches: 1  Memory Usage: 30kB
+                                 Buffers: shared hit=3
+                                 ->  Seq Scan on brand b  (cost=0.00..7.00 rows=400 width=17) (actual time=0.004..0.029 rows=400 loops=1)
+                                       Buffers: shared hit=3
+ Planning:
+   Buffers: shared hit=364
+ Planning Time: 2.229 ms
+ Execution Time: 521.002 ms
+(47 rows)
+

@@ -1,0 +1,22 @@
+-- q09_like_count_counted [after] captured 2026-10-16 13:42 UTC
+-- execution times (ms): 7.5, 8.6, 8.8; median 8.6
+
+-- Like count computed by counting rows (what the feed would need without the stored counter).
+SELECT count(*) AS likes
+FROM post_like
+WHERE post_id = :top_post;
+
+                                                                    QUERY PLAN                                                                     
+---------------------------------------------------------------------------------------------------------------------------------------------------
+ Aggregate  (cost=2411.09..2411.10 rows=1 width=8) (actual time=8.746..8.747 rows=1 loops=1)
+   Buffers: shared hit=91
+   ->  Index Only Scan using ix_post_like_post on post_like  (cost=0.43..2162.63 rows=99383 width=0) (actual time=0.112..5.194 rows=99999 loops=1)
+         Index Cond: (post_id = 160949)
+         Heap Fetches: 0
+         Buffers: shared hit=91
+ Planning:
+   Buffers: shared hit=111
+ Planning Time: 0.544 ms
+ Execution Time: 8.811 ms
+(10 rows)
+

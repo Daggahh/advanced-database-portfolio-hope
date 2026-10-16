@@ -1,0 +1,15 @@
+Index build times (psql \timing, one run, 9.6M row dataset) and sizes
+
+| Index | Table | Build time (ms) | Size |
+|---|---|---|---|
+| ix_post_like_created | post_like | 20772.5 | 144 MB |
+| ix_post_like_post | post_like | 7601.4 | 38 MB |
+| ix_vote_post | vote | 3353.3 | 30 MB |
+| ix_comment_post | comment | 2098.6 | 8792 kB |
+| ix_app_user_full_name_trgm | app_user | 1768.3 | 4320 kB |
+| ix_shop_item_image | shop_item | 949.3 | 6352 kB |
+| ix_post_hashtag_hashtag | post_hashtag | 852.0 | 3616 kB |
+| ix_post_author_created | post | 347.6 | 12 MB |
+| ix_comment_parent | comment | 243.5 | 3552 kB |
+
+CREATE EXTENSION pg_trgm: 116.7 ms; ANALYZE afterwards: 5795.4 ms

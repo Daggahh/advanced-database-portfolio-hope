@@ -1,0 +1,31 @@
+-- q04_user_search [after] captured 2026-10-16 13:42 UTC
+-- execution times (ms): 1.4, 1.8, 1.4; median 1.4
+
+-- People search: users whose name contains a fragment anywhere, case-insensitively.
+SELECT id, username, full_name
+FROM app_user
+WHERE full_name ILIKE '%' || :'name_search' || '%'
+ORDER BY full_name, id
+LIMIT 20;
+
+                                                                    QUERY PLAN                                                                     
+---------------------------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=68.68..68.71 rows=10 width=41) (actual time=1.295..1.298 rows=20 loops=1)
+   Buffers: shared hit=388
+   ->  Sort  (cost=68.68..68.71 rows=10 width=41) (actual time=1.294..1.295 rows=20 loops=1)
+         Sort Key: full_name, id
+         Sort Method: top-N heapsort  Memory: 27kB
+         Buffers: shared hit=388
+         ->  Bitmap Heap Scan on app_user  (cost=30.22..68.52 rows=10 width=41) (actual time=0.194..1.161 rows=398 loops=1)
+               Recheck Cond: ((full_name)::text ~~* '%tunde%'::text)
+               Heap Blocks: exact=373
+               Buffers: shared hit=382
+               ->  Bitmap Index Scan on ix_app_user_full_name_trgm  (cost=0.00..30.22 rows=10 width=0) (actual time=0.155..0.155 rows=398 loops=1)
+                     Index Cond: ((full_name)::text ~~* '%tunde%'::text)
+                     Buffers: shared hit=9
+ Planning:
+   Buffers: shared hit=177
+ Planning Time: 0.845 ms
+ Execution Time: 1.353 ms
+(17 rows)
+

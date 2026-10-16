@@ -1,0 +1,9 @@
+   name    | items 
+-----------+-------
+ Label 236 |     1
+ Label 268 |     1
+ Label 337 |     1
+ Label 34  |     1
+ Label 367 |     1
+(5 rows)
+

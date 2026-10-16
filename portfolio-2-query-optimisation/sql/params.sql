@@ -16,4 +16,10 @@
 -- tags 73,616 posts versus 5 posts
 \set popular_tag 'ootd'
 \set rare_tag 'sneakers_2916'
+-- last post on feed page 100 (row 2,000): the keyset cursor for q13
+\set cursor_created '2026-07-18 09:36:13.873242+00'
+\set cursor_id 133930
+-- the same two tags resolved to their ids, as an application would after one cached lookup
+\set popular_tag_id 1
+\set rare_tag_id 2917
 SET search_path = fitscheck;

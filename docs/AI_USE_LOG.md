@@ -57,3 +57,13 @@ A dated record of AI-assisted work on the portfolio. Summarised in `AI_USE_DECLA
   docker-compose.yml, README.md, portfolio-2-query-optimisation/ (sql, run_plans.py, plans, evidence)
 - My verification: I ran the small and large loads, checked determinism by checksum, re-ran the
   Portfolio 1 tests on the seeded data, ran the baseline and reviewed the plans.
+
+## 2026-10-16 - Portfolio 2 / indexes, statistics and rewrites
+- Tool: Claude Code
+- Used for: writing the nine indexes, the expression statistics, the keyset, LATERAL and id-lookup
+  query rewrites, and the write-cost A/B test; diagnosing the three plans that did not improve as
+  expected (q08 spill, q11 regression, q13 keyset).
+- Files touched: portfolio-2-query-optimisation/sql/optimise/, sql/q13 to q17, sql/params.sql,
+  plans/*_after.txt, evidence/ (timings, results, index build times, write cost)
+- My verification: I reviewed the before and after plans, checked every rewrite returns the same
+  rows as the query it replaces, and reviewed the A/B write-cost method and its excluded warm-up run.
