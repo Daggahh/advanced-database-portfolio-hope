@@ -76,3 +76,10 @@ A dated record of AI-assisted work on the portfolio. Summarised in `AI_USE_DECLA
   04_retention_test.sql, sql/q18_likes_this_month_partitioned.sql, evidence/, plans/
 - My verification: I reviewed the uniqueness error, the partition row counts, the pruned plan and
   the retention timings, and checked q18 returns the same rows as q15.
+
+## 2026-10-16 - Portfolio 2 / trending materialized view
+- Tool: Claude Code
+- Used for: writing the trending materialized view, its refresh-cost measurement and q19.
+- Files touched: portfolio-2-query-optimisation/sql/optimise/05_trending_mv.sql,
+  sql/q19_trending_from_mv.sql, evidence/trending_mv_build_and_refresh.txt, plans/, evidence/
+- My verification: I checked q19 returns the same rows as q03 and reviewed the refresh timings.

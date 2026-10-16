@@ -1,4 +1,4 @@
-Captured 2026-10-16 14:10 UTC
+Captured 2026-10-16 14:11 UTC
 
                                                        version                                                        
 ----------------------------------------------------------------------------------------------------------------------
@@ -30,8 +30,8 @@ Captured 2026-10-16 14:10 UTC
  post_like_2026_07  |  500974 | 50 MB
  post_like_2026_06  |  348550 | 35 MB
  shop_item          |  303792 | 34 MB
- post               |  300000 | 52 MB
  notification       |  300000 | 29 MB
+ post               |  300000 | 52 MB
  post_like_2026_05  |  277494 | 28 MB
  post_like_2026_04  |  195851 | 19 MB
  post_like_2026_03  |  150236 | 15 MB
@@ -40,6 +40,7 @@ Captured 2026-10-16 14:10 UTC
  user_device        |   93261 | 18 MB
  post_like_2026_01  |   76041 | 8064 kB
  post_like_2025_12  |   48695 | 4944 kB
+ mv_trending_24h    |   33768 | 3360 kB
  post_like_2025_11  |   22316 | 2320 kB
  challenge_entry    |   11551 | 1824 kB
  hashtag            |    5000 | 720 kB
@@ -48,9 +49,9 @@ Captured 2026-10-16 14:10 UTC
  block              |     500 | 96 kB
  brand              |     400 | 120 kB
  challenge          |     200 | 144 kB
- post_like_by_month |       0 | 0 bytes
  post_like_default  |       0 | 8192 bytes
-(32 rows)
+ post_like_by_month |       0 | 0 bytes
+(33 rows)
 
          index_name          |    table_name     |    size    
 -----------------------------+-------------------+------------
@@ -73,6 +74,8 @@ Captured 2026-10-16 14:10 UTC
  pk_follow                   | follow            | 35 MB
  pk_hashtag                  | hashtag           | 128 kB
  uq_hashtag_name             | hashtag           | 232 kB
+ ix_mv_trending_24h_likes    | mv_trending_24h   | 1056 kB
+ uq_mv_trending_24h_post     | mv_trending_24h   | 760 kB
  pk_notification             | notification      | 6600 kB
  ix_post_author_created      | post              | 12 MB
  pk_post                     | post              | 6616 kB
@@ -107,5 +110,5 @@ Captured 2026-10-16 14:10 UTC
  ix_vote_post                | vote              | 30 MB
  pk_vote                     | vote              | 21 MB
  uq_vote_user_post           | vote              | 39 MB
-(53 rows)
+(55 rows)
 

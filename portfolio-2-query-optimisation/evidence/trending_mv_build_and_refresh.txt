@@ -1,0 +1,20 @@
+SET
+Timing is on.
+SELECT 33768
+Time: 250.392 ms
+CREATE INDEX
+Time: 105.800 ms
+CREATE INDEX
+Time: 117.228 ms
+ANALYZE
+Time: 17.552 ms
+ posts_in_view |  size   
+---------------+---------
+         33768 | 3352 kB
+(1 row)
+
+Time: 2.358 ms
+REFRESH MATERIALIZED VIEW
+Time: 427.787 ms
+REFRESH MATERIALIZED VIEW
+Time: 530.223 ms
