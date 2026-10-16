@@ -67,3 +67,12 @@ A dated record of AI-assisted work on the portfolio. Summarised in `AI_USE_DECLA
   plans/*_after.txt, evidence/ (timings, results, index build times, write cost)
 - My verification: I reviewed the before and after plans, checked every rewrite returns the same
   rows as the query it replaces, and reviewed the A/B write-cost method and its excluded warm-up run.
+
+## 2026-10-16 - Portfolio 2 / partitioning experiment
+- Tool: Claude Code
+- Used for: writing the monthly range-partitioning experiment on a copy of post_like, the retention
+  test (DELETE versus DROP partition) and q18.
+- Files touched: portfolio-2-query-optimisation/sql/optimise/03_partition_experiment.sql,
+  04_retention_test.sql, sql/q18_likes_this_month_partitioned.sql, evidence/, plans/
+- My verification: I reviewed the uniqueness error, the partition row counts, the pruned plan and
+  the retention timings, and checked q18 returns the same rows as q15.

@@ -1,0 +1,14 @@
+SET
+Timing is on.
+BEGIN
+Time: 1.133 ms
+DELETE 1200785
+Time: 31425.501 ms (00:31.426)
+ROLLBACK
+Time: 0.436 ms
+BEGIN
+Time: 0.222 ms
+DROP TABLE
+Time: 226.085 ms
+ROLLBACK
+Time: 2.115 ms

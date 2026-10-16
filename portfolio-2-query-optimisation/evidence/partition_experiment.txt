@@ -1,0 +1,33 @@
+SET
+Timing is on.
+psql:portfolio-2-query-optimisation/sql/optimise/03_partition_experiment.sql:17: ERROR:  unique constraint on partitioned table must include all partitioning columns
+DETAIL:  PRIMARY KEY constraint on table "post_like_by_month" lacks column "created_at" which is part of the partition key.
+Time: 10.177 ms
+CREATE TABLE
+Time: 5.689 ms
+DO
+Time: 99.872 ms
+CREATE TABLE
+Time: 10.084 ms
+INSERT 0 4791927
+Time: 117039.252 ms (01:57.039)
+ANALYZE
+Time: 37868.456 ms (00:37.868)
+     partition     |  rows   
+-------------------+---------
+ post_like_2025_10 |    2479
+ post_like_2025_11 |   22316
+ post_like_2025_12 |   48695
+ post_like_2026_01 |   76041
+ post_like_2026_02 |   97862
+ post_like_2026_03 |  150236
+ post_like_2026_04 |  195851
+ post_like_2026_05 |  277494
+ post_like_2026_06 |  348550
+ post_like_2026_07 |  500974
+ post_like_2026_08 |  784820
+ post_like_2026_09 | 1200785
+ post_like_2026_10 | 1085824
+(13 rows)
+
+Time: 342.653 ms

@@ -1,4 +1,4 @@
-Captured 2026-10-16 13:44 UTC
+Captured 2026-10-16 14:10 UTC
 
                                                        version                                                        
 ----------------------------------------------------------------------------------------------------------------------
@@ -16,67 +16,96 @@ Captured 2026-10-16 13:44 UTC
  work_mem                        | 4096    | kB
 (7 rows)
 
-   table_name    |  rows   | total_size 
------------------+---------+------------
- post_like       | 4792404 | 618 MB
- vote            | 1000409 | 156 MB
- follow          |  893880 | 80 MB
- comment         |  763273 | 129 MB
- post_image      |  571220 | 102 MB
- post_hashtag    |  510255 | 41 MB
- shop_item       |  303792 | 34 MB
- notification    |  300000 | 29 MB
- post            |  300000 | 52 MB
- app_user        |  100000 | 39 MB
- user_device     |   93261 | 18 MB
- challenge_entry |   11551 | 1824 kB
- hashtag         |    5000 | 720 kB
- report          |     600 | 136 kB
- block           |     500 | 96 kB
- brand           |     400 | 120 kB
- challenge       |     200 | 144 kB
-(17 rows)
+     table_name     |  rows   | total_size 
+--------------------+---------+------------
+ post_like          | 4792404 | 655 MB
+ post_like_2026_09  | 1200785 | 122 MB
+ post_like_2026_10  | 1085824 | 111 MB
+ vote               | 1000409 | 156 MB
+ follow             |  893880 | 80 MB
+ post_like_2026_08  |  784820 | 77 MB
+ comment            |  763273 | 129 MB
+ post_image         |  571220 | 102 MB
+ post_hashtag       |  510255 | 41 MB
+ post_like_2026_07  |  500974 | 50 MB
+ post_like_2026_06  |  348550 | 35 MB
+ shop_item          |  303792 | 34 MB
+ post               |  300000 | 52 MB
+ notification       |  300000 | 29 MB
+ post_like_2026_05  |  277494 | 28 MB
+ post_like_2026_04  |  195851 | 19 MB
+ post_like_2026_03  |  150236 | 15 MB
+ app_user           |  100000 | 39 MB
+ post_like_2026_02  |   97862 | 9760 kB
+ user_device        |   93261 | 18 MB
+ post_like_2026_01  |   76041 | 8064 kB
+ post_like_2025_12  |   48695 | 4944 kB
+ post_like_2025_11  |   22316 | 2320 kB
+ challenge_entry    |   11551 | 1824 kB
+ hashtag            |    5000 | 720 kB
+ post_like_2025_10  |    2479 | 328 kB
+ report             |     600 | 136 kB
+ block              |     500 | 96 kB
+ brand              |     400 | 120 kB
+ challenge          |     200 | 144 kB
+ post_like_by_month |       0 | 0 bytes
+ post_like_default  |       0 | 8192 bytes
+(32 rows)
 
-         index_name          |   table_name    |  size   
------------------------------+-----------------+---------
- ix_app_user_full_name_trgm  | app_user        | 4320 kB
- pk_app_user                 | app_user        | 2208 kB
- uq_app_user_email_ci        | app_user        | 6792 kB
- uq_app_user_username_ci     | app_user        | 4960 kB
- pk_block                    | block           | 32 kB
- pk_brand                    | brand           | 16 kB
- uq_brand_name               | brand           | 40 kB
- pk_challenge                | challenge       | 16 kB
- uq_challenge_slug           | challenge       | 32 kB
- pk_challenge_entry          | challenge_entry | 272 kB
- uq_entry_challenge_user     | challenge_entry | 368 kB
- uq_entry_id_challenge       | challenge_entry | 376 kB
- ix_comment_parent           | comment         | 3552 kB
- ix_comment_post             | comment         | 8792 kB
- pk_comment                  | comment         | 16 MB
- uq_comment_id_post          | comment         | 23 MB
- pk_follow                   | follow          | 35 MB
- pk_hashtag                  | hashtag         | 128 kB
- uq_hashtag_name             | hashtag         | 232 kB
- pk_notification             | notification    | 6600 kB
- ix_post_author_created      | post            | 12 MB
- pk_post                     | post            | 6616 kB
- uq_post_id_author           | post            | 9272 kB
- ix_post_hashtag_hashtag     | post_hashtag    | 3616 kB
- pk_post_hashtag             | post_hashtag    | 15 MB
- pk_post_image               | post_image      | 12 MB
- uq_post_image_id_post       | post_image      | 17 MB
- uq_post_image_post_position | post_image      | 17 MB
- ix_post_like_created        | post_like       | 144 MB
- ix_post_like_post           | post_like       | 38 MB
- pk_post_like                | post_like       | 193 MB
- pk_report                   | report          | 32 kB
- ix_shop_item_image          | shop_item       | 6352 kB
- pk_shop_item                | shop_item       | 6680 kB
- pk_user_device              | user_device     | 2056 kB
- uq_user_device_push_token   | user_device     | 7632 kB
- ix_vote_post                | vote            | 30 MB
- pk_vote                     | vote            | 21 MB
- uq_vote_user_post           | vote            | 39 MB
-(39 rows)
+         index_name          |    table_name     |    size    
+-----------------------------+-------------------+------------
+ ix_app_user_full_name_trgm  | app_user          | 4320 kB
+ pk_app_user                 | app_user          | 2208 kB
+ uq_app_user_email_ci        | app_user          | 6792 kB
+ uq_app_user_username_ci     | app_user          | 4960 kB
+ pk_block                    | block             | 32 kB
+ pk_brand                    | brand             | 16 kB
+ uq_brand_name               | brand             | 40 kB
+ pk_challenge                | challenge         | 16 kB
+ uq_challenge_slug           | challenge         | 32 kB
+ pk_challenge_entry          | challenge_entry   | 272 kB
+ uq_entry_challenge_user     | challenge_entry   | 368 kB
+ uq_entry_id_challenge       | challenge_entry   | 376 kB
+ ix_comment_parent           | comment           | 3552 kB
+ ix_comment_post             | comment           | 8792 kB
+ pk_comment                  | comment           | 16 MB
+ uq_comment_id_post          | comment           | 23 MB
+ pk_follow                   | follow            | 35 MB
+ pk_hashtag                  | hashtag           | 128 kB
+ uq_hashtag_name             | hashtag           | 232 kB
+ pk_notification             | notification      | 6600 kB
+ ix_post_author_created      | post              | 12 MB
+ pk_post                     | post              | 6616 kB
+ uq_post_id_author           | post              | 9272 kB
+ ix_post_hashtag_hashtag     | post_hashtag      | 3616 kB
+ pk_post_hashtag             | post_hashtag      | 15 MB
+ pk_post_image               | post_image        | 12 MB
+ uq_post_image_id_post       | post_image        | 17 MB
+ uq_post_image_post_position | post_image        | 17 MB
+ ix_post_like_created        | post_like         | 152 MB
+ ix_post_like_post           | post_like         | 42 MB
+ pk_post_like                | post_like         | 193 MB
+ post_like_2025_10_pkey      | post_like_2025_10 | 168 kB
+ post_like_2025_11_pkey      | post_like_2025_11 | 1144 kB
+ post_like_2025_12_pkey      | post_like_2025_12 | 2424 kB
+ post_like_2026_01_pkey      | post_like_2026_01 | 4152 kB
+ post_like_2026_02_pkey      | post_like_2026_02 | 4736 kB
+ post_like_2026_03_pkey      | post_like_2026_03 | 8056 kB
+ post_like_2026_04_pkey      | post_like_2026_04 | 9904 kB
+ post_like_2026_05_pkey      | post_like_2026_05 | 14 MB
+ post_like_2026_06_pkey      | post_like_2026_06 | 18 MB
+ post_like_2026_07_pkey      | post_like_2026_07 | 25 MB
+ post_like_2026_08_pkey      | post_like_2026_08 | 38 MB
+ post_like_2026_09_pkey      | post_like_2026_09 | 62 MB
+ post_like_2026_10_pkey      | post_like_2026_10 | 56 MB
+ post_like_default_pkey      | post_like_default | 8192 bytes
+ pk_report                   | report            | 32 kB
+ ix_shop_item_image          | shop_item         | 6352 kB
+ pk_shop_item                | shop_item         | 6680 kB
+ pk_user_device              | user_device       | 2056 kB
+ uq_user_device_push_token   | user_device       | 7632 kB
+ ix_vote_post                | vote              | 30 MB
+ pk_vote                     | vote              | 21 MB
+ uq_vote_user_post           | vote              | 39 MB
+(53 rows)
 
