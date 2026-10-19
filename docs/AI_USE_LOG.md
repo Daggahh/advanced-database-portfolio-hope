@@ -102,3 +102,11 @@ A dated record of AI-assisted work on the portfolio. Summarised in `AI_USE_DECLA
   evidence)
 - My verification: I ran run_all.sh from a freshly built database, checked there were no thread
   errors, and reviewed every scenario's evidence and the generated matrix.
+
+## 2026-10-19 - Portfolio 3 / README write-up
+- Tool: Claude Code
+- Used for: drafting the Portfolio 3 README (scenarios, method, results, isolation matrix, analysis
+  and limitations) from the regenerated evidence.
+- Files touched: portfolio-3-transactions-concurrency/README.md, README.md (status)
+- My verification: I checked the figures in the README against the evidence files from the final
+  clean run.
