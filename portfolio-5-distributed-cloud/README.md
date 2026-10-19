@@ -1,6 +1,6 @@
 # Portfolio 5: Distributed and Cloud Database Exercise
 
-**Case study:** FitsCheck. **Marks:** 6. **Status:** Not started.
+**Case study:** FitsCheck. **Status:** Not started.
 
 **Brief requires:** distributed/cloud database discussion or setup based on the same case study, including replication, sharding, availability, consistency, or deployment evidence.
 

@@ -42,14 +42,14 @@ written fresh for this course; no application code is reused. Every row is synth
 
 ## 2. Portfolio index
 
-| # | Activity | Marks | Folder | Status |
-|---|---|---|---|---|
-| 1 | Database Design and Modelling | 7 | [portfolio-1-database-design](portfolio-1-database-design/) | Complete |
-| 2 | Query Processing and Optimisation | 7 | [portfolio-2-query-optimisation](portfolio-2-query-optimisation/) | Complete |
-| 3 | Transactions and Concurrency | 7 | [portfolio-3-transactions-concurrency](portfolio-3-transactions-concurrency/) | Complete |
-| 4 | NoSQL and Advanced Data Models | 7 | [portfolio-4-nosql](portfolio-4-nosql/) | Not started |
-| 5 | Distributed and Cloud Database Exercise | 6 | [portfolio-5-distributed-cloud](portfolio-5-distributed-cloud/) | Not started |
-| - | Final Documentation and Reflection | 6 | [docs](docs/) | Not started |
+| # | Activity | Folder | Status |
+|---|---|---|---|
+| 1 | Database Design and Modelling | [portfolio-1-database-design](portfolio-1-database-design/) | Complete |
+| 2 | Query Processing and Optimisation | [portfolio-2-query-optimisation](portfolio-2-query-optimisation/) | Complete |
+| 3 | Transactions and Concurrency | [portfolio-3-transactions-concurrency](portfolio-3-transactions-concurrency/) | Complete |
+| 4 | NoSQL and Advanced Data Models | [portfolio-4-nosql](portfolio-4-nosql/) | Not started |
+| 5 | Distributed and Cloud Database Exercise | [portfolio-5-distributed-cloud](portfolio-5-distributed-cloud/) | Not started |
+| - | Final Documentation and Reflection | [docs](docs/) | Not started |
 
 Each portfolio folder has its own README covering what was built, how to run it, how it was tested,
 the evidence it produced, and what I learned.

@@ -1,6 +1,6 @@
 # Portfolio 3: Transactions and Concurrency
 
-**Case study:** FitsCheck. **Marks:** 7. **Status:** Complete.
+**Case study:** FitsCheck. **Status:** Complete.
 
 **Brief requires:** transaction examples showing commit, rollback, isolation, concurrency issue or control mechanism, and screenshots/output evidence.
 

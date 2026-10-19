@@ -1,6 +1,6 @@
 # Portfolio 1: Database Design and Modelling
 
-**Case study:** FitsCheck. **Marks:** 7. **Status:** Complete.
+**Case study:** FitsCheck. **Status:** Complete.
 
 **Brief requires:** chosen case study description, ER diagram, relational schema, keys, constraints, and normalisation explanation.
 

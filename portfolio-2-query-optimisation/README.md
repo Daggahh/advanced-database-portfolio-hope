@@ -1,6 +1,6 @@
 # Portfolio 2: Query Processing and Optimisation
 
-**Case study:** FitsCheck. **Marks:** 7. **Status:** Complete.
+**Case study:** FitsCheck. **Status:** Complete.
 
 **Brief requires:** SQL queries, query results, execution plans, indexing/optimisation evidence, and brief performance analysis.
 

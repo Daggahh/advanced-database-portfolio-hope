@@ -1,6 +1,6 @@
 # Portfolio 4: NoSQL and Advanced Data Models
 
-**Case study:** FitsCheck. **Marks:** 7. **Status:** Not started.
+**Case study:** FitsCheck. **Status:** Not started.
 
 **Brief requires:** NoSQL model based on the same case study, document/key-value/column/graph example, implementation evidence, and explanation of suitability.
 
