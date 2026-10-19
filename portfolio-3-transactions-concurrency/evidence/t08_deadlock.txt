@@ -1,0 +1,24 @@
+T8: two counter jobs lock the same two posts in opposite order
+==============================================================
+
+Each job recomputes likes_count for posts X and Y (for example, flushing counters from a
+cache). Job A updates X then Y; job B updates Y then X. Each ends up waiting for a lock the
+other holds. PostgreSQL detects the cycle after deadlock_timeout (1s) and aborts one job.
+
+
+-- opposite order (post X = 6030, post Y = 6031)
+   0.038s  [job B] updated post 6031
+   0.043s  [job A] updated post 6030
+   1.051s  [job A] updated post 6031
+   1.051s  [job B] 40P01 deadlock detected after 1.031s: deadlock detected; rolled back
+   1.055s  [job A] committed after 1.029s
+
+-- both lock in id order first (post X = 6032, post Y = 6033)
+   0.021s  [job A] locked both posts in id order
+   0.030s  [job A] updated post 6032
+   0.038s  [job A] updated post 6033
+   0.042s  [job A] committed after 0.024s
+   0.043s  [job B] locked both posts in id order
+   0.056s  [job B] updated post 6033
+   0.063s  [job B] updated post 6032
+   0.067s  [job B] committed after 0.053s

@@ -92,3 +92,13 @@ A dated record of AI-assisted work on the portfolio. Summarised in `AI_USE_DECLA
   plans/q14 diagnostic header, README.md (status)
 - My verification: I checked every figure in the README against the timings CSVs and evidence files;
   three wrong figures (index disk total, posts per followed author, a run command) were corrected.
+
+## 2026-10-19 - Portfolio 3 / transaction scenarios and concurrency harness
+- Tool: Claude Code
+- Used for: writing post_fit, the P3 database setup and run scripts, the T1-T3 transaction scripts,
+  and the concurrency harness for T4-T10 that generates the isolation matrix; diagnosing the
+  FOR UPDATE deadlock in T4.
+- Files touched: portfolio-3-transactions-concurrency/ (sql, harness, setup_p3_db.sh, run_all.sh,
+  evidence)
+- My verification: I ran run_all.sh from a freshly built database, checked there were no thread
+  errors, and reviewed every scenario's evidence and the generated matrix.

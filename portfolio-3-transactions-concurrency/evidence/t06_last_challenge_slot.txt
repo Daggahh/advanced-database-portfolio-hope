@@ -1,0 +1,29 @@
+T6: two users take the last challenge slot at the same moment
+=============================================================
+
+BR-16: a challenge accepts entries only while open and below max_entries. Each session counts
+the entries, checks the limit, then inserts its own entry. The two inserts are different rows,
+so no row conflict exists: this is write skew. The shared entries_count counter is updated
+after the race (and reconciled) so that it does not itself serialize the two sessions.
+
+
+-- count then insert at READ COMMITTED (challenge 21, max_entries 3, 2 taken)
+   0.040s  [user 24] saw 2/3 entries: inserted and committed (attempt 1)
+   0.041s  [user 23] saw 2/3 entries: inserted and committed (attempt 1)
+   0.083s  [result] entries = 4 for max_entries = 3  <-- over the limit
+
+-- count then insert at REPEATABLE READ (challenge 22, max_entries 3, 2 taken)
+   0.041s  [user 23] saw 2/3 entries: inserted and committed (attempt 1)
+   0.044s  [user 24] saw 2/3 entries: inserted and committed (attempt 1)
+   0.095s  [result] entries = 4 for max_entries = 3  <-- over the limit
+
+-- count then insert at SERIALIZABLE (challenge 23, max_entries 3, 2 taken)
+   0.040s  [user 23] saw 2/3 entries: inserted and committed (attempt 1)
+   0.041s  [user 24] 40001 could not serialize access due to read/write dependencies among transactions; retrying
+   0.044s  [user 24] saw 3/3 entries: refused (attempt 2)
+   0.081s  [result] entries = 3 for max_entries = 3
+
+-- lock the challenge row FOR UPDATE, then count at READ COMMITTED (challenge 24, max_entries 3, 2 taken)
+   0.028s  [user 23] saw 2/3 entries: inserted and committed (attempt 1)
+   0.032s  [user 24] saw 3/3 entries: refused (attempt 1)
+   0.082s  [result] entries = 3 for max_entries = 3

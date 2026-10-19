@@ -1,0 +1,91 @@
+-- T3: closing a challenge crowns the winner and awards style points in one transaction. Notifying the
+-- winner is inside a SAVEPOINT, so a failed notification is undone on its own and the win still
+-- commits. BR-17: a winner is set only once the challenge has ended and only if none is set yet.
+SET search_path = fitscheck;
+SET
+\set challenge 20
+-- step 1: state before
+SELECT id, ends_at, now() > ends_at AS has_ended, winner_entry_id, reward_points
+FROM challenge WHERE id = :challenge;
+ id |        ends_at         | has_ended | winner_entry_id | reward_points 
+----+------------------------+-----------+-----------------+---------------
+ 20 | 2026-10-18 00:00:00+00 | t         |                 |            50
+(1 row)
+
+SELECT sum(style_points) AS total_style_points_before FROM app_user;
+ total_style_points_before 
+---------------------------
+                      2550
+(1 row)
+
+BEGIN;
+BEGIN
+-- step 2: lock the challenge row so no other session can close it at the same time (see T10)
+SELECT id FROM challenge WHERE id = :challenge FOR UPDATE;
+ id 
+----
+ 20
+(1 row)
+
+-- step 3: the entry whose post has the most votes wins; the WHERE clause holds BR-17
+WITH winner AS (
+    SELECT e.id, e.user_id, count(v.id) AS votes
+    FROM challenge_entry e LEFT JOIN vote v ON v.post_id = e.post_id
+    WHERE e.challenge_id = :challenge
+    GROUP BY e.id ORDER BY votes DESC, e.id LIMIT 1
+)
+UPDATE challenge c SET winner_entry_id = w.id
+FROM winner w
+WHERE c.id = :challenge AND c.winner_entry_id IS NULL AND now() > c.ends_at
+RETURNING c.winner_entry_id, w.user_id AS winner_user, w.votes \gset
+UPDATE 1
+-- step 4: award the style points
+UPDATE app_user SET style_points = style_points + (SELECT reward_points FROM challenge WHERE id = :challenge)
+WHERE id = :winner_user RETURNING id, username, style_points;
+  id  |     username     | style_points 
+------+------------------+--------------
+ 1779 | paulolawale.1779 |          400
+(1 row)
+
+UPDATE 1
+-- step 5: notifying the winner fails (title is NOT NULL); the savepoint undoes only this part
+SAVEPOINT notify_winner;
+SAVEPOINT
+INSERT INTO notification (recipient_id, type, title) VALUES (:winner_user, 'challenge_won', NULL);
+psql:portfolio-3-transactions-concurrency/sql/t03_close_challenge_savepoint.sql:34: ERROR:  null value in column "title" of relation "notification" violates not-null constraint
+DETAIL:  Failing row contains (6001, 1779, challenge_won, null, null, f, 2026-10-19 10:25:15.402143+00).
+ROLLBACK TO SAVEPOINT notify_winner;
+ROLLBACK
+-- step 6: the transaction is usable again and commits the win
+COMMIT;
+COMMIT
+-- step 7: the winner and the points were kept; the failed notification was not
+SELECT id, winner_entry_id FROM challenge WHERE id = :challenge;
+ id | winner_entry_id 
+----+-----------------
+ 20 |            1013
+(1 row)
+
+SELECT sum(style_points) AS total_style_points_after FROM app_user;
+ total_style_points_after 
+--------------------------
+                     2600
+(1 row)
+
+SELECT count(*) AS challenge_won_notifications_for_winner
+FROM notification WHERE recipient_id = :winner_user AND type = 'challenge_won' AND created_at > now() - interval '1 minute';
+ challenge_won_notifications_for_winner 
+----------------------------------------
+                                      0
+(1 row)
+
+-- step 8: running the same closing statement again changes nothing, because BR-17's WHERE clause
+-- requires that no winner is set yet
+WITH winner AS (
+    SELECT e.id FROM challenge_entry e LEFT JOIN vote v ON v.post_id = e.post_id
+    WHERE e.challenge_id = :challenge GROUP BY e.id ORDER BY count(v.id) DESC, e.id LIMIT 1
+)
+UPDATE challenge c SET winner_entry_id = w.id
+FROM winner w
+WHERE c.id = :challenge AND c.winner_entry_id IS NULL AND now() > c.ends_at;
+UPDATE 0

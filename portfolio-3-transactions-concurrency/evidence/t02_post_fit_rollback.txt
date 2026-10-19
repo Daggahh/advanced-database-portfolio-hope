@@ -1,0 +1,53 @@
+-- T2: a post that fails partway leaves nothing behind, and a post with no images is refused (BR-07).
+SET search_path = fitscheck;
+SET
+\set author 7
+-- step 1: state before
+SELECT (SELECT count(*) FROM post) AS posts, (SELECT count(*) FROM post_image) AS images,
+       (SELECT posts_count FROM hashtag WHERE name = 'ootd') AS ootd_posts;
+ posts | images | ootd_posts 
+-------+--------+------------
+  6001 |  11247 |       1795
+(1 row)
+
+-- step 2 (T2a): the post and its images are inserted, then the second hashtag breaks the hashtag
+-- format check, so the whole transaction fails
+BEGIN;
+BEGIN
+SELECT post_fit(:author, 'T2 fit that fails', ARRAY['t2-a.jpg', 't2-b.jpg'], ARRAY['ootd', 'Bad Tag!']);
+psql:portfolio-3-transactions-concurrency/sql/t02_post_fit_rollback.sql:12: ERROR:  new row for relation "hashtag" violates check constraint "ck_hashtag_name_format"
+DETAIL:  Failing row contains (303, Bad Tag!, 1, 2026-10-19 10:25:15.314214+00).
+CONTEXT:  SQL statement "INSERT INTO hashtag (name, posts_count) VALUES (v_tag, 1)
+        ON CONFLICT (name) DO UPDATE SET posts_count = hashtag.posts_count + 1
+        RETURNING id"
+PL/pgSQL function post_fit(bigint,text,text[],text[]) line 20 at SQL statement
+-- step 3: after an error PostgreSQL refuses further work in this transaction until it ends
+SELECT 1 AS still_usable;
+psql:portfolio-3-transactions-concurrency/sql/t02_post_fit_rollback.sql:14: ERROR:  current transaction is aborted, commands ignored until end of transaction block
+ROLLBACK;
+ROLLBACK
+-- step 4: nothing from the failed transaction survived, not even the rows written before the error
+SELECT (SELECT count(*) FROM post) AS posts, (SELECT count(*) FROM post_image) AS images,
+       (SELECT posts_count FROM hashtag WHERE name = 'ootd') AS ootd_posts;
+ posts | images | ootd_posts 
+-------+--------+------------
+  6001 |  11247 |       1795
+(1 row)
+
+SELECT count(*) AS posts_with_t2_caption FROM post WHERE caption = 'T2 fit that fails';
+ posts_with_t2_caption 
+-----------------------
+                     0
+(1 row)
+
+-- step 5 (T2b): BR-07, a post with no images, is refused by the posting transaction
+SELECT post_fit(:author, 'T2 fit with no images', ARRAY[]::text[]);
+psql:portfolio-3-transactions-concurrency/sql/t02_post_fit_rollback.sql:23: ERROR:  a post needs 1 to 10 images, got 0
+CONTEXT:  PL/pgSQL function post_fit(bigint,text,text[],text[]) line 8 at RAISE
+SELECT count(*) AS posts_with_no_images
+FROM post p WHERE NOT EXISTS (SELECT 1 FROM post_image WHERE post_id = p.id);
+ posts_with_no_images 
+----------------------
+                    0
+(1 row)
+

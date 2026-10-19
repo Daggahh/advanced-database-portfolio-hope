@@ -1,0 +1,17 @@
+T10: two admins press 'close challenge' at the same moment
+==========================================================
+
+Closing a challenge sets the winner and awards style points (BR-17). The naive version checks
+'no winner yet' with a plain read; the locked version reads the row FOR UPDATE, so the second
+admin waits, then sees the winner already set and does nothing.
+
+
+-- naive check with a plain SELECT (challenge 25, reward 100)
+   0.228s  [admin 1] set winner entry 1095 and awarded 100 points to user 61
+   0.238s  [admin 2] set winner entry 1095 and awarded 100 points to user 61
+   0.260s  [result] winner's style points 0 -> 200 (awarded 200, should be 100)
+
+-- check with SELECT ... FOR UPDATE (challenge 26, reward 100)
+   0.023s  [admin 1] set winner entry 1097 and awarded 100 points to user 61
+   0.026s  [admin 2] winner already set (1097): nothing to do
+   0.042s  [result] winner's style points 200 -> 300 (awarded 100, should be 100)

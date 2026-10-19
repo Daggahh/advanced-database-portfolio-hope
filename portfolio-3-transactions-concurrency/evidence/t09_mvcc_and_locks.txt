@@ -1,0 +1,19 @@
+T9: inside MVCC and row locking during a blocked update
+=======================================================
+
+Session A updates a post and keeps its transaction open. An observer reads the row and the
+system views; session B tries to update the same row and blocks until A commits.
+
+   0.071s  [observer] before any update: xmin=8024 xmax=8024 ctid=(63,46) caption='P3 fixture aa5e177f'
+   0.089s  [session A] txid 8025 updated the caption, not committed yet
+   0.089s  [observer] while A is open (old version still visible, its xmax is A's txid): xmin=8024 xmax=8025 ctid=(63,46) caption='P3 fixture aa5e177f'
+   0.107s  [observer] a READ COMMITTED reader sees caption='P3 fixture aa5e177f'
+   0.120s  [observer] a REPEATABLE READ reader sees caption='P3 fixture aa5e177f'
+   0.134s  [observer] a SERIALIZABLE reader sees caption='P3 fixture aa5e177f'
+   0.148s  [session B] UPDATE the same row (will block on A's row lock)
+   1.139s  [observer] pg_stat_activity for B: pid=13371 wait_event_type=Lock wait_event=transactionid blocked_by=[13367] query="UPDATE post SET caption = 'edited by B' WHERE id ="
+   1.141s  [observer] pg_locks for B: locktype=transactionid mode=ShareLock granted=False transactionid=8025
+   1.142s  [observer] pg_locks for B: locktype=tuple mode=ExclusiveLock granted=True transactionid=None
+   1.645s  [session A] committed
+   1.646s  [session B] unblocked after 1.498s, updated, committing
+   1.651s  [observer] after A and B committed (a new row version: new xmin and ctid): xmin=8026 xmax=8026 ctid=(63,48) caption='edited by B'

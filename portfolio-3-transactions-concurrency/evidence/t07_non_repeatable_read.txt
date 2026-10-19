@@ -1,0 +1,22 @@
+T7: a leaderboard is read twice while a vote and a like arrive
+==============================================================
+
+The reader reads a post's like counter (a row value) and counts its votes (a set of rows),
+then a writer commits one new like and one new vote, then the reader repeats both reads in
+the same transaction. A changed counter is a non-repeatable read; a changed count is a phantom.
+
+
+-- reader at READ COMMITTED (post 6027)
+   0.029s  [reader] first read:  likes_count=0, votes=0
+   0.057s  [writer] committed one like (counter +1) and one vote
+   0.068s  [reader] second read: likes_count=1, votes=1
+
+-- reader at REPEATABLE READ (post 6028)
+   0.022s  [reader] first read:  likes_count=0, votes=0
+   0.049s  [writer] committed one like (counter +1) and one vote
+   0.056s  [reader] second read: likes_count=0, votes=0
+
+-- reader at SERIALIZABLE (post 6029)
+   0.020s  [reader] first read:  likes_count=0, votes=0
+   0.042s  [writer] committed one like (counter +1) and one vote
+   0.046s  [reader] second read: likes_count=0, votes=0

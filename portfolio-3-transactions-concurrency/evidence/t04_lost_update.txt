@@ -1,0 +1,44 @@
+T4: 50 people like the same fit at the same moment
+==================================================
+
+Each like inserts a post_like row and then maintains post.likes_count (BR-20). The naive
+version reads the counter, then writes back read + 1. A barrier makes all 50 sessions read
+before any of them writes. The post_like rows are the ground truth: 50 per run.
+
+
+-- naive read-then-write at READ COMMITTED (post 6003)
+   0.439s  [user 3] read likes_count=0, wrote 1, committed (attempt 1)
+   0.620s  [user 2] read likes_count=0, wrote 1, committed (attempt 1)
+   0.640s  [user 51] read likes_count=0, wrote 1, committed (attempt 1)
+   0.773s  [result] post_like rows = 50, likes_count = 1, likes lost = 49, serialization retries = 0, deadlocks = 0
+   0.810s  [result] v_counter_drift (P1 BR-20 check): flags this post, stored 1 vs actual 50
+
+-- naive read-then-write at REPEATABLE READ (post 6004)
+   0.465s  [user 3] 40001 could not serialize access due to concurrent update; retrying
+   0.500s  [user 2] 40001 could not serialize access due to concurrent update; retrying
+   0.716s  [user 3] read likes_count=5, wrote 6, committed (attempt 3)
+   0.757s  [user 2] read likes_count=6, wrote 7, committed (attempt 4)
+   1.453s  [user 51] read likes_count=26, wrote 27, committed (attempt 14)
+   2.156s  [result] post_like rows = 50, likes_count = 50, likes lost = 0, serialization retries = 633, deadlocks = 0
+   2.179s  [result] v_counter_drift (P1 BR-20 check): no drift
+
+-- naive read-then-write at SERIALIZABLE (post 6005)
+   0.395s  [user 3] 40001 could not serialize access due to concurrent update; retrying
+   0.397s  [user 2] 40001 could not serialize access due to concurrent update; retrying
+   1.241s  [user 2] read likes_count=17, wrote 18, committed (attempt 9)
+   1.281s  [user 51] read likes_count=18, wrote 19, committed (attempt 11)
+   1.649s  [user 3] read likes_count=28, wrote 29, committed (attempt 18)
+   2.162s  [result] post_like rows = 50, likes_count = 50, likes lost = 0, serialization retries = 766, deadlocks = 0
+   2.188s  [result] v_counter_drift (P1 BR-20 check): no drift
+
+-- atomic UPDATE likes_count = likes_count + 1 at READ COMMITTED (post 6006)
+   0.758s  [result] post_like rows = 50, likes_count = 50, likes lost = 0, serialization retries = 0, deadlocks = 0
+   0.782s  [result] v_counter_drift (P1 BR-20 check): no drift
+
+-- SELECT ... FOR UPDATE, then write at READ COMMITTED (post 6007)
+  43.865s  [result] post_like rows = 1, likes_count = 1, likes lost = 0, serialization retries = 0, deadlocks = 49
+  43.918s  [result] v_counter_drift (P1 BR-20 check): no drift
+
+-- SELECT ... FOR NO KEY UPDATE, then write at READ COMMITTED (post 6008)
+   2.765s  [result] post_like rows = 50, likes_count = 50, likes lost = 0, serialization retries = 0, deadlocks = 0
+   2.802s  [result] v_counter_drift (P1 BR-20 check): no drift

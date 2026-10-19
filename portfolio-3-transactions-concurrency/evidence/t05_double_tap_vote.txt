@@ -1,0 +1,16 @@
+T5: a double-tap sends the same vote twice at the same moment
+=============================================================
+
+Two sessions insert the same (user, post) vote together. uq_vote_user_post (BR-11) is the
+concurrency control: the second insert waits for the first to commit, then is rejected.
+
+
+-- plain INSERT (post 6009)
+   0.025s  [tap 2] committed, rows inserted = 1 (waited 0.010s)
+   0.027s  [tap 1] rejected after 0.011s: 23505 uq_vote_user_post
+   0.050s  [result] votes stored for this user and post = 1
+
+-- INSERT ... ON CONFLICT DO NOTHING (post 6010)
+   0.027s  [tap 1] committed, rows inserted = 1 (waited 0.008s)
+   0.028s  [tap 2] committed, rows inserted = 0 (waited 0.008s)
+   0.044s  [result] votes stored for this user and post = 1
