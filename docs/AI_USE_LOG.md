@@ -110,3 +110,13 @@ A dated record of AI-assisted work on the portfolio. Summarised in `AI_USE_DECLA
 - Files touched: portfolio-3-transactions-concurrency/README.md, README.md (status)
 - My verification: I checked the figures in the README against the evidence files from the final
   clean run.
+
+## 2026-10-20 - Portfolio 4 / Redis
+- Tool: Claude Code
+- Used for: writing the Redis fan-out feed builder, the leaderboard, counter-flush and rate-limit
+  demonstrations, and the tie-break encoding that makes the leaderboard match SQL exactly.
+- Files touched: portfolio-4-nosql/redis/, portfolio-4-nosql/evidence/redis_*.txt,
+  docker-compose.yml, .env.example, shared/requirements.txt
+- My verification: I checked the Redis feed and leaderboard return the same rows as P2's q01 and
+  q06, that the 50 concurrent INCRs flushed to exactly 50 with no counter drift, and reviewed the
+  celebrity fan-out measurement.

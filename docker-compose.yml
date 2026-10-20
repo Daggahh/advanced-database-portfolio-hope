@@ -44,7 +44,7 @@ services:
     container_name: fitscheck_neo4j
     profiles: ["nosql"]
     environment:
-      NEO4J_AUTH: neo4j/fitscheck_local
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:-fitscheck_local}
     ports:
       - "7475:7474"
       - "7688:7687"

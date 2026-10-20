@@ -1,0 +1,20 @@
+Fan-out-on-write home feeds (Redis lists), built from the Portfolio 2 dataset
+==============================================================================
+loaded 893,880 follows and 300,000 posts
+fan-out: 2,224,561 pushes into 100,000 feeds in 36.4s (61,174 pushes/s), each feed capped at 500; Redis memory 19.20M
+
+Correctness: feed of user 82114
+Redis LRANGE feed:82114 0 19 -> [265651, 89737, 232853, 167709, 7690, 269426, 149935, 36907, 233106, 236311, 265275, 29352, 251531, 184468, 36946, 959, 18861, 272796, 265062, 64665]
+SQL q01 ids                      -> [265651, 89737, 232853, 167709, 7690, 269426, 149935, 36907, 233106, 236311, 265275, 29352, 251531, 184468, 36946, 959, 18861, 272796, 265062, 64665]
+identical: True
+
+Read path, median of 7 runs (warm)
+Redis LRANGE alone:                             0.50 ms
+Redis LRANGE + fetch 20 posts by primary key:   1.84 ms
+SQL q01 with ix_post_author_created:            9.57 ms
+(client-side round-trip times; P2 reported q01 server execution time as 6.8 ms)
+
+The celebrity problem: fan-out cost of one new post
+typical creator        (user 80016):      2 followers ->      2 writes,      0.2 ms
+most-followed creator  (user 13625): 99,999 followers -> 99,999 writes,   1679.9 ms
+(the test pushes used post id 0 and were removed afterwards)

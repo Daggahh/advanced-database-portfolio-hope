@@ -1,0 +1,34 @@
+Redis leaderboard, counters and rate limiting
+==============================================
+
+1. Challenge leaderboard (sorted set)
+----------------------------------------
+replayed 454 votes as ZINCRBY onto 120 entries
+Redis ZREVRANGE top 10 (entry, votes): [(5301, 159), (5221, 57), (5231, 54), (5254, 14), (5238, 13), (5296, 12), (5223, 8), (5264, 8), (5232, 7), (5211, 6)]
+SQL q06 top 10 (entry, votes):         [(5301, 159), (5221, 57), (5231, 54), (5254, 14), (5238, 13), (5296, 12), (5223, 8), (5264, 8), (5232, 7), (5211, 6)]
+same vote counts in the same order: True; same entries: True
+(equal votes rank by lowest entry id in both, via the tie-break built into the Redis score)
+ZREVRANK of entry 5301: 0 (0 = first place)
+read top 10: Redis 0.35 ms, SQL 0.99 ms (median of 7, client side)
+
+2. Like counters with INCR, flushed to PostgreSQL
+----------------------------------------
+50 sessions each inserted a post_like row and ran INCR likes:post:6040 at the same moment
+Redis counter = 50 (Redis runs commands one at a time, so INCR cannot lose an update)
+flush applied {6040: 50}: likes_count 0 -> 50; post_like rows = 50; v_counter_drift rows for this post = 0
+compare Portfolio 3 T4: the same race at READ COMMITTED left likes_count at 1 (49 lost)
+
+3. Rate limiting with expiring keys (at most 5 likes per user per 3 s window)
+----------------------------------------
+like attempt 1: count in window = 1 -> allowed
+like attempt 2: count in window = 2 -> allowed
+like attempt 3: count in window = 3 -> allowed
+like attempt 4: count in window = 4 -> allowed
+like attempt 5: count in window = 5 -> allowed
+like attempt 6: count in window = 6 -> rejected
+like attempt 7: count in window = 7 -> rejected
+TTL ratelimit:like:77:597494591 = 6 s: the key deletes itself, so no cleanup job is needed
+after the window passes: count = 1 -> allowed
+
+Durability settings of this Redis: {'save': '3600 1 300 100 60 10000', 'appendonly': 'no'}
+(RDB snapshots only, no append-only file: a crash can lose writes since the last snapshot)

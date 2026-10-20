@@ -1,2 +1,5 @@
 psycopg[binary]==3.3.6
 Faker==40.41.0
+neo4j==6.4.1
+pymongo==4.19.0
+redis==8.1.0
