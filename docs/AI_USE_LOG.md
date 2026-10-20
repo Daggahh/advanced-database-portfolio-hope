@@ -137,3 +137,11 @@ A dated record of AI-assisted work on the portfolio. Summarised in `AI_USE_DECLA
 - Files touched: portfolio-4-nosql/neo4j/follow_graph.py, portfolio-4-nosql/evidence/neo4j_follow_graph.txt
 - My verification: I checked both queries return the same answers as SQL and reviewed the growth
   table and the database-hit counts.
+
+## 2026-10-20 - Portfolio 4 / README write-up
+- Tool: Claude Code
+- Used for: drafting the Portfolio 4 README (design per store, results, suitability analysis and
+  limitations) from the evidence files.
+- Files touched: portfolio-4-nosql/README.md, README.md (status)
+- My verification: I checked the figures against the evidence files and replaced an illustrative
+  JSON example with the real stored document.
