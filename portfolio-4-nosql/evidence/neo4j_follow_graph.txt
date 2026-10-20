@@ -1,0 +1,30 @@
+FitsCheck follow graph: Neo4j against PostgreSQL
+================================================
+loaded 100,000 User nodes and 893,880 FOLLOWS relationships in 66.6s
+
+1. People you may know for user 82114 (Portfolio 2 query q07)
+--------------------------------------------------------
+Cypher: [(32446, 5), (56461, 3), (2956, 2), (13830, 2), (15757, 2), (21298, 2), (88334, 2), (774, 1), (2811, 1), (3310, 1)]
+SQL:    [(32446, 5), (56461, 3), (2956, 2), (13830, 2), (15757, 2), (21298, 2), (88334, 2), (774, 1), (2811, 1), (3310, 1)]
+same suggestions: True
+Neo4j 6.64 ms, PostgreSQL 0.74 ms (median of 5)
+Neo4j database hits: 445
+
+2. Shortest follow path from user 82114 to user 235 (at most 4 hops)
+------------------------------------------------------------
+Cypher shortestPath: [82114, 84333, 56143, 235] (3 hops)
+SQL recursive CTE:   [82114, 84333, 56143, 235] (3 hops)
+same length: True (several equally short paths may exist)
+Neo4j 6.54 ms, PostgreSQL 9.23 ms
+the recursive CTE built 8,685 partial paths; Neo4j used 49 database hits
+
+3. How the work grows with the search depth (same pair of users)
+----------------------------------------------------------------
+max hops | SQL partial paths | SQL ms    | Neo4j db hits | Neo4j ms
+       3 |             1,084 |       1.5 |            49 |      5.9
+       4 |             8,685 |      10.7 |            49 |      6.1
+       5 |            70,146 |      70.1 |            49 |      5.2
+       6 |           563,077 |    3724.5 |            49 |     30.7
+The recursive CTE enumerates every path up to the depth limit, so its work multiplies by roughly
+the average out-degree (about 9 follows) per extra hop. shortestPath() runs a bidirectional
+breadth-first search that stops at the first meeting point, so its work barely changes.

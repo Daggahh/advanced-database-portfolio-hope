@@ -129,3 +129,11 @@ A dated record of AI-assisted work on the portfolio. Summarised in `AI_USE_DECLA
 - Files touched: portfolio-4-nosql/mongodb/, portfolio-4-nosql/evidence/mongo_*.txt
 - My verification: I checked every MongoDB result matches its SQL equivalent, reviewed the explain
   plans before and after the index change, and reviewed the embed versus reference decisions.
+
+## 2026-10-20 - Portfolio 4 / Neo4j
+- Tool: Claude Code
+- Used for: writing the follow-graph loader and the Cypher versus SQL comparisons for people you may
+  know and shortest path, including the search-depth growth measurement.
+- Files touched: portfolio-4-nosql/neo4j/follow_graph.py, portfolio-4-nosql/evidence/neo4j_follow_graph.txt
+- My verification: I checked both queries return the same answers as SQL and reviewed the growth
+  table and the database-hit counts.
