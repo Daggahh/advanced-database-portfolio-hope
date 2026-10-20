@@ -1,0 +1,53 @@
+MongoDB operations compared with PostgreSQL (median of 7 warm runs, client side)
+================================================================================
+
+1. Fit card for post 1332: one document read against joins over five tables
+---------------------------------------------------------------------------
+MongoDB: post 1332 by modupepaimo.10359, 3 images, 0 shop items, hashtags ['sneakers_2706'], latest comments [3090, 3089, 3088]
+SQL:     post 1332 by modupepaimo.10359, 3 images, 0 shop items, hashtags ['sneakers_2706'], latest comments [3090, 3089, 3088]
+same card: True
+MongoDB find_one by _id: 0.96 ms
+SQL joins for the card:  0.90 ms
+plan IDHACK; keys examined 1, documents examined 1, returned 1
+
+2. Brands worn in fits tagged #ootd (aggregation pipeline against SQL q16)
+--------------------------------------------------------------------------
+MongoDB: [('Label 332', 193), ('Label 214', 183), ('Label 84', 182), ('Label 169', 181), ('Label 391', 180), ('Label 98', 180), ('Label 149', 179), ('Label 367', 178), ('Andrea Iyamah', 176), ('Label 247', 176)]
+SQL:     [('Label 332', 193), ('Label 214', 183), ('Label 84', 182), ('Label 169', 181), ('Label 391', 180), ('Label 98', 180), ('Label 149', 179), ('Label 367', 178), ('Andrea Iyamah', 176), ('Label 247', 176)]
+same result: True
+MongoDB aggregate:   340.62 ms
+SQL join:            495.60 ms
+plan PROJECTION_SIMPLE <- FETCH <- IXSCAN(ix_posts_hashtags_created); keys examined 73,616, documents examined 73,616, returned 73,616
+
+3. Brands worn in fits tagged #sneakers_2916 (aggregation pipeline against SQL q17)
+-----------------------------------------------------------------------------------
+MongoDB: [('Label 236', 1), ('Label 268', 1), ('Label 337', 1), ('Label 34', 1), ('Label 367', 1)]
+SQL:     [('Label 236', 1), ('Label 268', 1), ('Label 337', 1), ('Label 34', 1), ('Label 367', 1)]
+same result: True
+MongoDB aggregate:     2.15 ms
+SQL join:              0.25 ms
+plan PROJECTION_SIMPLE <- FETCH <- IXSCAN(ix_posts_hashtags_created); keys examined 5, documents examined 5, returned 5
+
+4. Profile page: latest 20 posts by creator 72535
+-------------------------------------------------
+same 20 posts in the same order: True
+MongoDB find + sort + limit: 2.07 ms
+SQL with ix_post_author_created: 0.73 ms
+plan LIMIT <- FETCH <- IXSCAN(ix_posts_author_created); keys examined 20, documents examined 20, returned 20
+
+5. Comments page for post 1332: first 50 from the referenced collection
+-----------------------------------------------------------------------
+same 50 comments in the same order: True
+MongoDB: 1.69 ms; SQL: 0.37 ms
+plan LIMIT <- FETCH <- IXSCAN(ix_comments_post_created); keys examined 50, documents examined 50, returned 50
+
+6. The cost of the embedded author copy: one creator changes their username
+---------------------------------------------------------------------------
+MongoDB: update_many touched 8,309 post documents in 344.0 ms
+SQL: one row, UPDATE app_user SET username = ... WHERE id = ...; every query joins to it
+(creator 72535 has 8,309 posts; the username was restored afterwards)
+
+7. The $jsonSchema validator rejects invalid documents
+------------------------------------------------------
+a fit with no images (BR-07): rejected, code 121 (Document failed validation)
+a hashtag with capitals and a space: rejected, code 121 (Document failed validation)

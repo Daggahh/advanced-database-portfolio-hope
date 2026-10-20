@@ -120,3 +120,12 @@ A dated record of AI-assisted work on the portfolio. Summarised in `AI_USE_DECLA
 - My verification: I checked the Redis feed and leaderboard return the same rows as P2's q01 and
   q06, that the 50 concurrent INCRs flushed to exactly 50 with no counter drift, and reviewed the
   celebrity fan-out measurement.
+
+## 2026-10-20 - Portfolio 4 / MongoDB
+- Tool: Claude Code
+- Used for: designing the document model, writing the PostgreSQL to MongoDB migration with its
+  $jsonSchema validator, and the query comparisons with explain output; adding the sort tie-break to
+  the MongoDB indexes after explain showed blocking SORT stages.
+- Files touched: portfolio-4-nosql/mongodb/, portfolio-4-nosql/evidence/mongo_*.txt
+- My verification: I checked every MongoDB result matches its SQL equivalent, reviewed the explain
+  plans before and after the index change, and reviewed the embed versus reference decisions.
