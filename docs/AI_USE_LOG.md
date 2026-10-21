@@ -171,3 +171,11 @@ A dated record of AI-assisted work on the portfolio. Summarised in `AI_USE_DECLA
 - Files touched: portfolio-5-distributed-cloud/sharding/, portfolio-5-distributed-cloud/evidence/citus_*.txt
 - My verification: I checked every Citus query returns the same answer as the single-node database,
   reviewed the shard task counts, and re-ran the comparison after the VACUUM fix.
+
+## 2026-10-21 - Portfolio 5 / README write-up
+- Tool: Claude Code
+- Used for: drafting the Portfolio 5 README (cluster designs, results, CAP and PACELC analysis applied
+  to FitsCheck, limitations) from the evidence files.
+- Files touched: portfolio-5-distributed-cloud/README.md, README.md (status)
+- My verification: I checked every figure against the final evidence files; MongoDB figures quoted
+  from an earlier run were corrected to the final run.
