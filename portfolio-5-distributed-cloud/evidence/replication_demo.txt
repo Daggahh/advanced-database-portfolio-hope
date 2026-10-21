@@ -1,0 +1,63 @@
+PostgreSQL 16 streaming replication: FitsCheck primary with two hot standbys
+===========================================================================
+
+1. Topology: one primary streaming WAL to two hot standbys
+----------------------------------------------------------
+pg_stat_replication: replica1 state=streaming sync_state=async
+pg_stat_replication: replica2 state=streaming sync_state=async
+pg_replication_slots: replica1 type=physical active=True
+pg_replication_slots: replica2 type=physical active=True
+primary : 2,000 users, 6,000 posts, 115,028 likes, in recovery (read-only standby) = False
+replica1: 2,000 users, 6,000 posts, 115,028 likes, in recovery (read-only standby) = True
+replica2: 2,000 users, 6,000 posts, 115,028 likes, in recovery (read-only standby) = True
+
+2. Replication lag: time from commit on the primary until the post is visible on a replica
+------------------------------------------------------------------------------------------
+20 posts: median 5.81 ms, min 0.66 ms, max 34.02 ms
+replica1: write_lag=None flush_lag=None replay_lag=None (last reported)
+replica2: write_lag=0:00:00.000378 flush_lag=0:00:00.003731 replay_lag=0:00:00.003782 (last reported)
+
+3. Replicas are read-only
+-------------------------
+post_fit on replica1 -> SQLSTATE 25006: cannot execute INSERT in a read-only transaction
+
+4. 'Where is my post?': reading your own write from a lagging replica
+---------------------------------------------------------------------
+replica1: WAL replay paused (simulating a replica that has fallen behind)
+primary: user 7 posted fit 6021; commit WAL position 0/6C224B0
+user 7 reloads their profile from replica1: the new post is MISSING
+with LSN-aware routing: replica1 has not replayed 0/6C224B0, so the read goes to the primary; post found = True
+replica1: WAL replay resumed
+after catching up: the read goes to replica1; post found = True
+
+5. Synchronous against asynchronous commit
+------------------------------------------
+synchronous_standby_names = 'FIRST 1 (replica1, replica2)': replica1 is sync
+synchronous_standby_names = 'FIRST 1 (replica1, replica2)': replica2 is potential
+
+median commit latency of 200 single-row inserts, by synchronous_commit level:
+  off             0.10 ms  (commit returns before the WAL is flushed locally)
+  local           7.67 ms  (flushed on the primary only)
+  remote_write   13.48 ms  (the standby has received and written the WAL)
+  on             18.89 ms  (the standby has flushed the WAL to disk)
+  remote_apply   20.07 ms  (the standby has replayed it, so it is visible there)
+
+Availability cost: both standbys stopped while synchronous replication is required
+after 5 s the commit is still waiting: True
+cancelled after 5.1 s; result: committed
+server warning: canceling wait for synchronous replication due to user request
+rows with that title on the primary: 1 (committed locally, never confirmed by a standby)
+synchronous replication switched off again and both standbys restarted
+
+6. Failover: the primary goes down and replica1 is promoted
+-----------------------------------------------------------
+primary: 6,022 posts, last post id 6022
+primary crashed: docker kill (SIGKILL, no shutdown, no final WAL flush to the standbys)
+pg_promote() on replica1 returned after 720 ms; in recovery = False
+replica1 (new primary) holds 6,022 posts; last post present = True
+writes work on the new primary: post 6034 committed
+replica2: primary_conninfo pointed at replica1 and reloaded (it follows the new timeline)
+replica2 sees post 6034 written on the new primary: True
+new primary pg_stat_replication: replica2 state=streaming
+new primary writes WAL on timeline 2 (promotion starts a new timeline); the old primary would need pg_rewind or a fresh clone to rejoin
+post ids jumped from 6022 to 6034: sequences are logged ahead in batches, so a promoted replica skips the unused values (ids stay unique, not gap-free)

@@ -145,3 +145,12 @@ A dated record of AI-assisted work on the portfolio. Summarised in `AI_USE_DECLA
 - Files touched: portfolio-4-nosql/README.md, README.md (status)
 - My verification: I checked the figures against the evidence files and replaced an illustrative
   JSON example with the real stored document.
+
+## 2026-10-21 - Portfolio 5 / PostgreSQL streaming replication
+- Tool: Claude Code
+- Used for: writing the three-node replication cluster (compose file, primary init, replica clone
+  script), run.sh and the demonstration of lag, read-only replicas, read-your-writes routing,
+  synchronous commit costs and failover.
+- Files touched: portfolio-5-distributed-cloud/replication/, portfolio-5-distributed-cloud/evidence/replication_demo.txt
+- My verification: I ran the cluster from scratch, checked the replicas held identical data, and
+  reviewed each section of the evidence, including the corrected crash and timeline readings.

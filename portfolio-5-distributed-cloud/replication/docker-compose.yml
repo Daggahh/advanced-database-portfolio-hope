@@ -1,0 +1,65 @@
+# Portfolio 5: PostgreSQL 16 streaming replication, one primary and two hot-standby replicas.
+# Run from this folder: docker compose up -d
+name: fitscheck-replication
+
+x-pg-env: &pg-env
+  POSTGRES_USER: fitscheck
+  POSTGRES_PASSWORD: fitscheck_local
+  POSTGRES_DB: fitscheck
+  REPLICATION_PASSWORD: replicator_local
+
+services:
+  primary:
+    image: postgres:16
+    container_name: rep_primary
+    environment: *pg-env
+    command:
+      - postgres
+      - -c
+      - wal_level=replica
+      - -c
+      - max_wal_senders=10
+      - -c
+      - max_replication_slots=10
+      - -c
+      - wal_keep_size=256MB
+    volumes:
+      - ./init-primary.sh:/docker-entrypoint-initdb.d/init-primary.sh:ro
+      - primary_data:/var/lib/postgresql/data
+    ports:
+      - "5441:5432"
+
+  replica1:
+    image: postgres:16
+    container_name: rep_replica1
+    environment:
+      <<: *pg-env
+      PRIMARY_HOST: primary
+      SLOT_NAME: replica1
+    entrypoint: ["/start-replica.sh"]
+    volumes:
+      - ./start-replica.sh:/start-replica.sh:ro
+      - replica1_data:/var/lib/postgresql/data
+    ports:
+      - "5442:5432"
+    depends_on: [primary]
+
+  replica2:
+    image: postgres:16
+    container_name: rep_replica2
+    environment:
+      <<: *pg-env
+      PRIMARY_HOST: primary
+      SLOT_NAME: replica2
+    entrypoint: ["/start-replica.sh"]
+    volumes:
+      - ./start-replica.sh:/start-replica.sh:ro
+      - replica2_data:/var/lib/postgresql/data
+    ports:
+      - "5443:5432"
+    depends_on: [primary]
+
+volumes:
+  primary_data:
+  replica1_data:
+  replica2_data:
