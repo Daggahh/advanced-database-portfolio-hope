@@ -1,0 +1,37 @@
+Sharding FitsCheck by creator with Citus 12.1 (coordinator + 2 workers, 16 shards per table)
+=============================================================================================
+
+1. Where the data lives
+-----------------------
+worker1: 32 shards, 458 MB
+worker2: 32 shards, 404 MB
+creator 72535's posts are in shard 102037 on worker2, together with their profile and the likes on their posts (co-location)
+
+2. Queries that use the shard key, and queries that cannot
+----------------------------------------------------------
+Profile page: latest 20 posts by creator 72535
+  same answer as single-node PostgreSQL: True (20 rows)
+  Citus shard tasks: 1
+  Citus 2.62 ms, single node 6.35 ms (client side, median of 5)
+Creator 72535's five most-liked posts (join of post and post_like on one shard)
+  same answer as single-node PostgreSQL: True (5 rows)
+  Citus shard tasks: 1
+  Citus 16.75 ms, single node 131.77 ms (client side, median of 5)
+Trending: most-liked posts in the last 24 hours (every shard, merged on the coordinator)
+  same answer as single-node PostgreSQL: True (20 rows)
+  Citus shard tasks: 16
+  Citus 386.95 ms, single node 161.73 ms (client side, median of 5)
+
+3. The home feed: follows are sharded by follower, posts by author
+------------------------------------------------------------------
+single-query join refused: the query contains a join that requires repartitioning
+rewritten in two steps: read the user's follows from their shard, then ask only the authors' shards
+  same 20 posts as the single-node feed (Portfolio 2 q01): True
+  the user follows 15 accounts spread over 13 of 16 shards; Citus tasks: 13
+  (this cross-shard fan-in on every feed read is why feeds were precomputed in Redis in Portfolio 4)
+
+4. Hot shards: skewed creators make uneven shards
+-------------------------------------------------
+post      rows per shard: smallest 16,985, median 18,248, largest 24,403 (largest is 1.34x the median)
+post_like rows per shard: smallest 206,796, median 291,266, largest 473,170 (largest is 1.62x the median)
+the creator with the most likes on their posts (user 42846, 146,116 likes) sits on one shard: every like for them is written to that shard

@@ -1,0 +1,63 @@
+ citus_set_coordinator_host 
+----------------------------
+ 
+(1 row)
+
+ citus_add_node 
+----------------
+              2
+(1 row)
+
+ citus_add_node 
+----------------
+              3
+(1 row)
+
+SET
+CREATE TABLE
+psql:sharding/schema.sql:14: ERROR:  cannot create constraint on "post_try"
+DETAIL:  Distributed relations cannot have UNIQUE, EXCLUDE, or PRIMARY KEY constraints that do not include the partition column (with an equality operator if EXCLUDE).
+DROP TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+CREATE TABLE
+ create_distributed_table 
+--------------------------
+ 
+(1 row)
+
+ create_distributed_table 
+--------------------------
+ 
+(1 row)
+
+ create_distributed_table 
+--------------------------
+ 
+(1 row)
+
+ create_distributed_table 
+--------------------------
+ 
+(1 row)
+
+ create_reference_table 
+------------------------
+ 
+(1 row)
+
+ALTER TABLE
+ALTER TABLE
+CREATE INDEX
+CREATE INDEX
+ table_name | partmethod | colocationid | shards 
+------------+------------+--------------+--------
+ app_user   | h          |            2 |     16
+ post       | h          |            2 |     16
+ post_like  | h          |            2 |     16
+ follow     | h          |            2 |     16
+ hashtag    | n          |            3 |      1
+(5 rows)
+

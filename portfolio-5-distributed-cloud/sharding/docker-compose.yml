@@ -1,0 +1,25 @@
+# Portfolio 5: a Citus cluster, one coordinator and two workers (Citus 12.1 on PostgreSQL 16).
+# Trust authentication inside the private compose network keeps the local demo simple; a real
+# deployment would use passwords or certificates between nodes. Run via run.sh.
+name: fitscheck-citus
+
+x-node: &node
+  image: citusdata/citus:12.1
+  environment:
+    POSTGRES_USER: fitscheck
+    POSTGRES_PASSWORD: fitscheck_local
+    POSTGRES_DB: fitscheck
+    POSTGRES_HOST_AUTH_METHOD: trust
+
+services:
+  coordinator:
+    <<: *node
+    container_name: citus_coordinator
+    ports:
+      - "5451:5432"
+  worker1:
+    <<: *node
+    container_name: citus_worker1
+  worker2:
+    <<: *node
+    container_name: citus_worker2

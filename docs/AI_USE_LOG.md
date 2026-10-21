@@ -162,3 +162,12 @@ A dated record of AI-assisted work on the portfolio. Summarised in `AI_USE_DECLA
 - Files touched: portfolio-5-distributed-cloud/mongo-replicaset/, portfolio-5-distributed-cloud/evidence/mongo_replicaset_demo.txt
 - My verification: I ran it end to end from a fresh replica set and reviewed every phase, including
   the check that all acknowledged writes survived the failover.
+
+## 2026-10-21 - Portfolio 5 / Citus sharding
+- Tool: Claude Code
+- Used for: writing the Citus cluster, the creator-sharded schema, the loader and the demonstration
+  of shard placement, single-shard and all-shard queries, the home feed rewrite and hot shards;
+  diagnosing the slow single-node comparison as a visibility map cleared by P2's retention test.
+- Files touched: portfolio-5-distributed-cloud/sharding/, portfolio-5-distributed-cloud/evidence/citus_*.txt
+- My verification: I checked every Citus query returns the same answer as the single-node database,
+  reviewed the shard task counts, and re-ran the comparison after the VACUUM fix.
