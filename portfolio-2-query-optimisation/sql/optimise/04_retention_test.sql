@@ -10,3 +10,9 @@ ROLLBACK;
 BEGIN;
 DROP TABLE post_like_2026_09;
 ROLLBACK;
+
+-- The rolled-back DELETE still marked every row it touched, which clears the "all-visible" bits in the
+-- visibility map for those pages. Index-only scans then have to visit the table again (trending went
+-- from 527 to 103,067 buffers), and because an aborted delete leaves no dead rows, autovacuum is never
+-- triggered to repair it. VACUUM rebuilds the visibility map.
+VACUUM (ANALYZE) post_like;
