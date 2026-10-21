@@ -1,0 +1,46 @@
+MongoDB 7 replica set rs0: three members, FitsCheck fit documents
+==================================================================
+
+1. Members and data
+-------------------
+members: mongo1=PRIMARY, mongo2=SECONDARY, mongo3=SECONDARY
+inserted 6,039 fit documents with w:majority in 0.4s
+  mongo1 (primary) holds 6,039 posts
+  mongo2 (secondary) holds 6,039 posts
+  mongo3 (secondary) holds 6,039 posts
+
+2. Write concern: who must acknowledge before the write returns
+---------------------------------------------------------------
+w:1        (primary only): median 0.54 ms over 200 inserts
+w:majority (2 of 3 members): median 12.04 ms over 200 inserts
+a w:1 write can be lost if the primary fails before a secondary copies it; a w:majority write cannot
+
+3. Reading your own write from a secondary
+------------------------------------------
+plain session, w:1, read from a secondary straight after writing: own post missing 196 of 200 times
+causally consistent session, w:majority + read concern majority, secondary read: missing 0 of 200 times
+(the session sends its last operation time, so the secondary waits until it has caught up)
+
+4. Multi-document transaction: a post and its first comment together
+--------------------------------------------------------------------
+committed: post present=True, comment present=True
+second transaction failed on its comment (DuplicateKeyError); the whole transaction aborted
+aborted post present: False (single-node MongoDB in Portfolio 4 could not run multi-document transactions)
+
+5. Failover under load: one w:majority write every 100 ms while the primary is killed
+-------------------------------------------------------------------------------------
+before: mongo1=PRIMARY, mongo2=SECONDARY, mongo3=SECONDARY
+host: killed the primary, mongo1, at about 8 s into the failover phase
+ran 52.0s: 250 writes acknowledged, 0 failed
+slowest acknowledged write: #78 took 11.30s (the election, absorbed by the driver's automatic retry)
+after: mongo1=(not reachable/healthy), mongo2=PRIMARY, mongo3=SECONDARY
+every acknowledged write is stored on the new primary: True (250 stored)
+host: killed the new primary, mongo2; one member left
+
+6. Losing the majority: two of three members down
+-------------------------------------------------
+replica set status unavailable from a primary: ServerSelectionTimeoutError
+w:majority write refused after 8.2s: ServerSelectionTimeoutError
+mongo1 is down; mongo2 is down; mongo3 is secondary
+the surviving member steps down to secondary: without a majority no primary can be elected, so the
+replica set stops accepting writes rather than risk two primaries accepting conflicting writes

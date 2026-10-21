@@ -154,3 +154,11 @@ A dated record of AI-assisted work on the portfolio. Summarised in `AI_USE_DECLA
 - Files touched: portfolio-5-distributed-cloud/replication/, portfolio-5-distributed-cloud/evidence/replication_demo.txt
 - My verification: I ran the cluster from scratch, checked the replicas held identical data, and
   reviewed each section of the evidence, including the corrected crash and timeline readings.
+
+## 2026-10-21 - Portfolio 5 / MongoDB replica set
+- Tool: Claude Code
+- Used for: writing the three-member replica set, the fit-document export, run.sh and the
+  demonstration of write concerns, causal reads, transactions, failover under load and quorum loss.
+- Files touched: portfolio-5-distributed-cloud/mongo-replicaset/, portfolio-5-distributed-cloud/evidence/mongo_replicaset_demo.txt
+- My verification: I ran it end to end from a fresh replica set and reviewed every phase, including
+  the check that all acknowledged writes survived the failover.

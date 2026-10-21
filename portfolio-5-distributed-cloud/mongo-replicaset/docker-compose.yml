@@ -1,0 +1,17 @@
+# Portfolio 5: a three-member MongoDB replica set (rs0). Run from this folder via run.sh.
+name: fitscheck-mongo-rs
+
+x-member: &member
+  image: mongo:7
+  command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+
+services:
+  mongo1:
+    <<: *member
+    container_name: mongo1
+  mongo2:
+    <<: *member
+    container_name: mongo2
+  mongo3:
+    <<: *member
+    container_name: mongo3
