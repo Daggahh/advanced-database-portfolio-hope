@@ -49,7 +49,7 @@ written fresh for this course; no application code is reused. Every row is synth
 | 3 | Transactions and Concurrency | [portfolio-3-transactions-concurrency](portfolio-3-transactions-concurrency/) | Complete |
 | 4 | NoSQL and Advanced Data Models | [portfolio-4-nosql](portfolio-4-nosql/) | Complete |
 | 5 | Distributed and Cloud Database Exercise | [portfolio-5-distributed-cloud](portfolio-5-distributed-cloud/) | Complete |
-| - | Final Documentation and Reflection | [docs](docs/) | Not started |
+| - | Final Documentation and Reflection | [docs/final-documentation.pdf](docs/final-documentation.pdf) | Complete |
 
 Each portfolio folder has its own README covering what was built, how to run it, how it was tested,
 the evidence it produced, and what I learned.
@@ -105,8 +105,8 @@ the evidence it produced, and what I learned.
 │   ├── replication/  sharding/  mongo-replicaset/  cloud/
 │   └── evidence/
 └── docs/
-    ├── final-documentation.md             2-3 page LMS summary (exported to PDF)
-    ├── reflection.md                      individual technical reflection
+    ├── final-documentation.pdf           2-3 page LMS summary source, including the reflection
+    ├                                     the submitted summary
     ├── AI_USE_DECLARATION.md
     ├── AI_USE_LOG.md                      dated log of AI-assisted work
     └── references.md
